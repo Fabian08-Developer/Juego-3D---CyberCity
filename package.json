@@ -1,0 +1,21 @@
+{
+  "name": "cybercity",
+  "private": true,
+  "version": "0.1.0",
+  "description": "CyberCity: juego 3D en primera/tercera persona donde eres Ing. en Ciberseguridad en una mini ciudad.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.180.0",
+    "typescript": "5.9.3",
+    "vite": "7.3.7"
+  }
+}

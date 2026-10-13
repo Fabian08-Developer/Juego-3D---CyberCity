@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberCity — Analista SOC</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game"></canvas>
+
+      <div id="hud" class="hidden">
+        <div id="status" class="panel">
+          <div class="clock"><span id="day">Día 1</span> · <span id="clock">07:30</span></div>
+          <div class="bar-row"><span>⚡ Energía</span><div class="bar"><div id="energy-bar"></div></div></div>
+          <div class="bar-row"><span>⭐ Reputación</span><div class="bar"><div id="rep-bar"></div></div></div>
+          <div class="money">💰 $<span id="money">0</span></div>
+        </div>
+        <div id="right-col">
+          <canvas id="minimap" width="180" height="180" class="panel"></canvas>
+          <div id="alerts" class="panel"></div>
+        </div>
+        <div id="crosshair"></div>
+        <div id="prompt" class="hidden"></div>
+        <div id="objective" class="panel"></div>
+        <div id="help" class="panel">
+          <b>WASD</b> mover · <b>Shift</b> correr · <b>Espacio</b> saltar · <b>E</b> interactuar · <b>V</b> cámara 1ª/3ª ·
+          <b>Rueda</b> zoom · <b>H</b> ocultar ayuda · <b>Esc</b> pausa
+        </div>
+        <div id="toasts"></div>
+      </div>
+
+      <div id="start" class="overlay">
+        <div class="card hero">
+          <div class="logo">🛡️ CYBER<span>CITY</span></div>
+          <p class="subtitle">Un día en la vida de un Ingeniero en Ciberseguridad</p>
+          <p>
+            Recorre la ciudad, visita sus negocios y llega a tiempo a <b>CyberShield</b>. Desde tu estación del SOC
+            tendrás que detectar vulnerabilidades, identificar malware, frenar intrusos y desarmar campañas de phishing
+            antes de que se agote el tiempo.
+          </p>
+          <div class="controls">
+            <div><kbd>W A S D</kbd> Moverse</div>
+            <div><kbd>Ratón</kbd> Mirar</div>
+            <div><kbd>Shift</kbd> Correr</div>
+            <div><kbd>Espacio</kbd> Saltar</div>
+            <div><kbd>E</kbd> Interactuar</div>
+            <div><kbd>V</kbd> 1ª / 3ª persona</div>
+          </div>
+          <div class="buttons">
+            <button id="btn-start" class="primary">Comenzar jornada</button>
+            <button id="btn-new" class="ghost hidden">Nueva partida</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="pause" class="overlay hidden">
+        <div class="card"><h2>Pausa</h2><p>Haz clic para continuar.</p></div>
+      </div>
+
+      <div id="modal" class="overlay hidden">
+        <div class="card modal-card" id="modal-body"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
