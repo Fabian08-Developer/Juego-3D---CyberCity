@@ -1,0 +1,40 @@
+{
+  "id": "vulnerabilidades",
+  "name": "Escaneo de vulnerabilidades",
+  "min_level": 0,
+  "severities": ["Media", "Alta", "Alta", "Crítica"],
+  "titles": ["Escaneo trimestral de vulnerabilidades", "Resultados del escaneo del segmento DMZ"],
+  "briefing": "El escáner (tipo Nmap / OpenVAS) terminó de revisar el segmento de servidores. Revisa los servicios detectados.",
+  "instruction": "Marca los servicios VULNERABLES o mal configurados.",
+  "columns": ["Host", "IP", "Puerto", "Servicio", "Versión / Configuración"],
+  "pick": {"bad": [2, 3], "good": [3, 4]},
+  "bad": [
+    {"cells": ["{host}", "{internal_ip}", "80/tcp", "HTTP (Apache httpd)", "2.4.49"], "why": "Apache 2.4.49 es vulnerable a CVE-2021-41773 (path traversal y posible RCE). Actualizar a 2.4.51 o superior."},
+    {"cells": ["{host}", "{internal_ip}", "443/tcp", "HTTPS (OpenSSL)", "OpenSSL 1.0.1f"], "why": "OpenSSL 1.0.1f es vulnerable a Heartbleed (CVE-2014-0160): fuga de memoria del servidor, incluidas claves privadas."},
+    {"cells": ["{host}", "{internal_ip}", "8080/tcp", "App Java (Log4j)", "log4j-core 2.14.1"], "why": "Log4j 2.14.1 es vulnerable a Log4Shell (CVE-2021-44228): ejecución remota vía JNDI. Actualizar a 2.17.1 o superior."},
+    {"cells": ["{host}", "{internal_ip}", "445/tcp", "SMB", "SMBv1 · Windows Server 2008 R2"], "why": "SMBv1 sin el parche MS17-010 es explotable con EternalBlue (usado por WannaCry). Deshabilitar SMBv1 y parchear."},
+    {"cells": ["{host}", "{internal_ip}", "21/tcp", "FTP (vsftpd)", "2.3.4"], "why": "vsftpd 2.3.4 contiene una puerta trasera conocida (CVE-2011-2523) que abre una shell en el puerto 6200."},
+    {"cells": ["{host}", "{internal_ip}", "23/tcp", "Telnet", "telnetd"], "why": "Telnet envía credenciales en texto plano. Reemplazar por SSH."},
+    {"cells": ["{host}", "{internal_ip}", "3389/tcp", "RDP", "Windows 7 · sin NLA"], "why": "RDP expuesto sin NLA en Windows 7 es vulnerable a BlueKeep (CVE-2019-0708). No exponer RDP; usar VPN."},
+    {"cells": ["{host}", "{internal_ip}", "6379/tcp", "Redis", "5.0 · sin autenticación"], "why": "Redis expuesto sin autenticación permite leer y escribir datos y, a menudo, ejecutar código."},
+    {"cells": ["{host}", "{internal_ip}", "3306/tcp", "MySQL", "5.7 · root sin contraseña"], "why": "Base de datos accesible desde la red con root sin contraseña. Credenciales fuertes y acceso restringido."}
+  ],
+  "good": [
+    {"cells": ["{host}", "{internal_ip}", "22/tcp", "SSH (OpenSSH)", "9.8p1 · solo llaves"], "why": "OpenSSH actualizado con autenticación por llave pública: configuración correcta."},
+    {"cells": ["{host}", "{internal_ip}", "443/tcp", "HTTPS (nginx)", "1.26.2 · TLS 1.3"], "why": "nginx actualizado con TLS 1.3: sin vulnerabilidades conocidas relevantes."},
+    {"cells": ["{host}", "{internal_ip}", "5432/tcp", "PostgreSQL", "16.4 · solo red interna"], "why": "Versión soportada y accesible únicamente desde la red interna."},
+    {"cells": ["{host}", "{internal_ip}", "53/udp", "DNS (BIND)", "9.18 · recursión deshabilitada"], "why": "Versión soportada; sin recursión abierta no sirve para ataques de amplificación."},
+    {"cells": ["{host}", "{internal_ip}", "443/tcp", "HTTPS (Apache httpd)", "2.4.62"], "why": "Apache 2.4.62 ya incluye los parches de CVE-2021-41773 y CVE-2021-42013."},
+    {"cells": ["{host}", "{internal_ip}", "587/tcp", "SMTP (Postfix)", "3.8 · STARTTLS + autenticación"], "why": "Envío de correo autenticado y cifrado: configuración correcta."}
+  ],
+  "action": {
+    "question": "Con los hallazgos confirmados, ¿cuál es el siguiente paso?",
+    "correct": {"text": "Priorizar por criticidad (CVSS) y exposición, aplicar parches o mitigaciones y verificar con un nuevo escaneo.", "feedback": "Correcto: gestión de vulnerabilidades basada en riesgo, con verificación del cierre."},
+    "wrong": [
+      {"text": "Apagar todos los servidores de la empresa hasta nuevo aviso.", "feedback": "Desproporcionado: detiene el negocio. Hay que priorizar y mitigar."},
+      {"text": "Ignorar los hallazgos: el firewall perimetral ya nos protege.", "feedback": "Defensa en profundidad: el firewall no corrige servicios vulnerables."},
+      {"text": "Publicar el informe en redes sociales para alertar al público.", "feedback": "Divulgar vulnerabilidades sin corregir facilita el ataque."},
+      {"text": "Esperar a la auditoría anual para corregirlos.", "feedback": "Las vulnerabilidades críticas se corrigen según su SLA, no meses después."}
+    ]
+  }
+}

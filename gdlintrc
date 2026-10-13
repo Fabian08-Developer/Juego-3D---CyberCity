@@ -1,0 +1,4 @@
+max-line-length: 240
+function-argument-name: (_?[a-z][a-z0-9]*(_[a-z0-9]+)*_?)
+max-file-lines: 1000
+max-public-methods: 30

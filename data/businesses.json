@@ -1,0 +1,90 @@
+[
+  {
+    "id": "supermercado", "name": "MegaMarket", "type": "Supermercado", "style": "shelves",
+    "wall": "#d9d4c7", "accent": "#2e9e4f", "height": 9,
+    "greeting": "Todo lo que necesitas para tu jornada.",
+    "tip": "Al pagar con tarjeta, revisa que el datáfono no tenga piezas sueltas o añadidas (skimmers).",
+    "items": [
+      {"name": "Sándwich", "price": 6, "energy": 30, "description": "Un almuerzo rápido."},
+      {"name": "Fruta", "price": 2, "energy": 10, "description": "Ligero y saludable."},
+      {"name": "Bebida energética", "price": 5, "energy": 35, "description": "Mucha energía… con moderación."}
+    ]
+  },
+  {
+    "id": "cafeteria", "name": "Café Byte", "type": "Cafetería", "style": "tables",
+    "wall": "#8a5a3b", "accent": "#c8873a", "inner": "#f3e6d4", "height": 8,
+    "greeting": "¡El combustible oficial de los analistas SOC!",
+    "tip": "No uses el Wi-Fi abierto de la cafetería sin VPN: alguien podría interceptar tu tráfico.",
+    "items": [
+      {"name": "Café americano", "price": 3, "energy": 20, "description": "Clásico y efectivo."},
+      {"name": "Capuchino", "price": 4, "energy": 25, "description": "Con espuma de leche."},
+      {"name": "Brownie", "price": 3, "energy": 12, "description": "Para el antojo."}
+    ]
+  },
+  {
+    "id": "drogueria", "name": "Droguería Salud+", "type": "Droguería", "style": "shelves",
+    "wall": "#e8eef2", "accent": "#1d8fd1", "height": 8,
+    "greeting": "Cuidamos de ti.",
+    "tip": "Los datos de salud son información sensible: nunca los envíes por canales sin cifrar.",
+    "items": [
+      {"name": "Analgésico", "price": 4, "energy": 15, "description": "Para el dolor de cabeza tras un incidente crítico."},
+      {"name": "Vitaminas", "price": 8, "energy": 22, "description": "Un empujón para el resto del día."}
+    ]
+  },
+  {
+    "id": "panaderia", "name": "Pan del Barrio", "type": "Panadería", "style": "tables",
+    "wall": "#f0d9a8", "accent": "#b5651d", "inner": "#fff4e0", "height": 8,
+    "greeting": "Pan recién horneado todo el día.",
+    "items": [
+      {"name": "Pan de bono", "price": 2, "energy": 10, "description": "Calientito."},
+      {"name": "Almojábana", "price": 2, "energy": 10, "description": "Recién salida del horno."},
+      {"name": "Croissant", "price": 3, "energy": 14, "description": "De mantequilla."}
+    ]
+  },
+  {
+    "id": "restaurante", "name": "La Esquina", "type": "Restaurante", "style": "tables",
+    "wall": "#a8443b", "accent": "#f2b134", "inner": "#f6efe6", "height": 10,
+    "greeting": "Almuerzo ejecutivo del día.",
+    "tip": "Cuidado con quien mira tu pantalla en lugares públicos (shoulder surfing).",
+    "items": [
+      {"name": "Almuerzo ejecutivo", "price": 12, "energy": 50, "description": "Sopa, plato fuerte y jugo natural."},
+      {"name": "Jugo natural", "price": 3, "energy": 12, "description": "De maracuyá."}
+    ]
+  },
+  {
+    "id": "banco", "name": "Banco Nacional", "type": "Banco", "style": "bank",
+    "wall": "#cfd6dd", "accent": "#1f3a68", "inner": "#f2f4f7", "height": 16,
+    "greeting": "Tu dinero, seguro.",
+    "tip": "Ningún banco te pedirá tu contraseña o código OTP por correo, SMS o llamada. Si ocurre, es fraude.",
+    "items": []
+  },
+  {
+    "id": "libreria", "name": "Código Abierto", "type": "Librería", "style": "books",
+    "wall": "#5b6b8c", "accent": "#7c5cff", "height": 9,
+    "greeting": "Libros técnicos y de ciencia ficción.",
+    "items": [
+      {"name": "Libro: Hacking Ético", "price": 25, "reputation": 3, "xp": 40, "description": "Estudiar mejora tu reputación y tu carrera."},
+      {"name": "Guía de respuesta a incidentes", "price": 30, "reputation": 4, "xp": 60, "description": "Basada en NIST SP 800-61."}
+    ]
+  },
+  {
+    "id": "tecnostore", "name": "TecnoStore", "type": "Tecnología", "style": "tech",
+    "wall": "#2b2f3a", "accent": "#00c2a8", "inner": "#eef2f5", "height": 11,
+    "greeting": "Gadgets y hardware.",
+    "tip": "Activa la autenticación multifactor (MFA) en todas tus cuentas importantes.",
+    "items": [
+      {"name": "Llave de seguridad FIDO2", "price": 45, "reputation": 5, "xp": 50, "description": "MFA resistente a phishing."},
+      {"name": "Cable USB \"de regalo\"", "price": 0, "reputation": -3, "description": "Nunca conectes dispositivos USB de origen desconocido…"}
+    ]
+  },
+  {
+    "id": "ferreteria", "name": "El Tornillo", "type": "Ferretería", "style": "shelves",
+    "wall": "#c9b48a", "accent": "#e05a2b", "height": 8,
+    "greeting": "Herramientas para todo.",
+    "tip": "La seguridad física también importa: un candado débil en el rack anula el mejor firewall.",
+    "items": [
+      {"name": "Tapa para webcam", "price": 1, "reputation": 1, "description": "Privacidad ante todo."},
+      {"name": "Candado para rack", "price": 15, "reputation": 2, "xp": 15, "description": "Seguridad física para los servidores."}
+    ]
+  }
+]

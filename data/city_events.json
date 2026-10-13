@@ -1,0 +1,90 @@
+[
+  {
+    "id": "usb_parque", "spots": ["park_bench"], "title": "Una memoria USB abandonada",
+    "description": "En una banca del parque encuentras una memoria USB con una etiqueta: \"Nómina 2026 – Confidencial\".",
+    "options": [
+      {"text": "Conectarla a mi portátil para ver de quién es.", "outcome": "bad", "feedback": "Así funciona el \"USB baiting\": la memoria puede ejecutar malware o comportarse como teclado (BadUSB) al conectarla."},
+      {"text": "Entregarla al equipo de seguridad para analizarla en un equipo aislado.", "outcome": "good", "feedback": "Correcto. Se analiza en un entorno aislado y, si es un señuelo, se alerta a la empresa."},
+      {"text": "Dejarla donde está.", "outcome": "neutral", "feedback": "No te expones, pero otra persona podría conectarla. Mejor entregarla a seguridad."}
+    ]
+  },
+  {
+    "id": "skimmer", "spots": ["bank_atm"], "title": "Un cajero con piezas extrañas",
+    "description": "El cajero automático del Banco Nacional tiene la ranura de la tarjeta suelta y un teclado que sobresale un poco.",
+    "options": [
+      {"text": "Usarlo igual, tengo prisa.", "outcome": "bad", "feedback": "Es un skimmer: copia la banda de la tarjeta y una cámara o teclado falso captura el PIN."},
+      {"text": "No usarlo y reportarlo al banco de inmediato.", "outcome": "good", "feedback": "Correcto. El banco lo bloquea y preserva la evidencia para las autoridades."},
+      {"text": "Arrancar la pieza yo mismo.", "outcome": "neutral", "feedback": "Bien intencionado, pero puedes destruir evidencia o ponerte en riesgo. Repórtalo."}
+    ]
+  },
+  {
+    "id": "wifi_cafe", "spots": ["cafeteria"], "title": "Dos redes Wi-Fi en Café Byte",
+    "description": "Tu portátil muestra \"CafeByte_Clientes\" (con contraseña en el mostrador) y \"CafeByte_FREE_5G\" (abierta y con mejor señal).",
+    "options": [
+      {"text": "Conectarme a la abierta, es más rápida.", "outcome": "bad", "feedback": "Probable \"gemelo malvado\" (evil twin): un punto de acceso falso para interceptar tu tráfico."},
+      {"text": "Usar los datos de mi celular o la red oficial con VPN.", "outcome": "good", "feedback": "Correcto. La VPN cifra tu tráfico aunque la red no sea confiable."},
+      {"text": "Preguntar en el mostrador cuál es la red oficial y usarla sin VPN.", "outcome": "neutral", "feedback": "Mejor que adivinar, pero en una red compartida sigue siendo recomendable la VPN."}
+    ]
+  },
+  {
+    "id": "vishing", "spots": ["street", "park_bench", "bus_stop"], "title": "Una llamada de \"soporte técnico\"",
+    "description": "Te llaman: \"Hola, soy de soporte de CyberShield. Para evitar el bloqueo de tu cuenta dime el código que te llegó por SMS\".",
+    "options": [
+      {"text": "Darle el código para evitar el bloqueo.", "outcome": "bad", "feedback": "Vishing: con ese código el atacante completa el MFA y entra a tu cuenta."},
+      {"text": "Colgar y llamar a la mesa de ayuda por el número oficial.", "outcome": "good", "feedback": "Correcto. Verificas por un canal conocido; soporte nunca pide códigos MFA."},
+      {"text": "Pedirle su nombre y dárselo si suena convincente.", "outcome": "bad", "feedback": "Los atacantes investigan nombres reales para sonar convincentes."}
+    ]
+  },
+  {
+    "id": "tailgating", "spots": ["hq_entrance"], "title": "Alguien quiere entrar detrás de ti",
+    "description": "En la entrada de CyberShield, una persona con overol y una caja grande te pide: \"¿Me sostienes la puerta? Vengo a revisar el aire acondicionado y olvidé mi tarjeta\".",
+    "options": [
+      {"text": "Sostenerle la puerta, se ve que trabaja aquí.", "outcome": "bad", "feedback": "Tailgating: así entra un intruso físico. Las cajas grandes y la prisa son trucos comunes."},
+      {"text": "Indicarle amablemente que se registre en recepción.", "outcome": "good", "feedback": "Correcto. Recepción verifica la visita y le entrega una credencial temporal."},
+      {"text": "Ignorarlo y entrar rápido.", "outcome": "neutral", "feedback": "No lo dejaste pasar, pero lo ideal es orientarlo a recepción y avisar a seguridad."}
+    ]
+  },
+  {
+    "id": "qr_parada", "spots": ["bus_stop"], "title": "Un código QR sospechoso",
+    "description": "En la parada de bus hay un sticker con un QR: \"Recarga tu tarjeta de transporte con 50 % de descuento\". Parece pegado encima del cartel original.",
+    "options": [
+      {"text": "Escanearlo y pagar la recarga.", "outcome": "bad", "feedback": "Quishing: el QR lleva a una página falsa que roba los datos de tu tarjeta."},
+      {"text": "No escanearlo, reportarlo y recargar por los canales oficiales.", "outcome": "good", "feedback": "Correcto. Los stickers sobre carteles oficiales son una señal clásica de fraude."},
+      {"text": "Escanearlo solo para ver a dónde lleva.", "outcome": "neutral", "feedback": "Abrir la página ya puede exponerte (descargas, rastreo). Mejor no hacerlo."}
+    ]
+  },
+  {
+    "id": "shoulder", "spots": ["restaurante", "cafeteria"], "title": "Miradas indiscretas",
+    "description": "Mientras revisas un informe confidencial, alguien en la mesa de al lado mira fijamente tu pantalla.",
+    "options": [
+      {"text": "Seguir trabajando, seguro no entiende nada.", "outcome": "bad", "feedback": "Shoulder surfing: basta una foto con el celular para filtrar información."},
+      {"text": "Bloquear la pantalla y continuar en un lugar privado o con filtro de privacidad.", "outcome": "good", "feedback": "Correcto. La información confidencial no se trabaja a la vista del público."}
+    ]
+  },
+  {
+    "id": "postit", "spots": ["reception"], "title": "Una contraseña a la vista",
+    "description": "En recepción ves un post-it pegado al monitor: \"admin / Recepcion2026!\".",
+    "options": [
+      {"text": "Probar la contraseña para ver si funciona.", "outcome": "bad", "feedback": "Eso es acceso no autorizado, aunque tengas buenas intenciones."},
+      {"text": "Reportarlo, ayudar a cambiarla y recomendar un gestor de contraseñas.", "outcome": "good", "feedback": "Correcto. Corriges el riesgo y enseñas una alternativa segura."},
+      {"text": "No decir nada, no es mi problema.", "outcome": "neutral", "feedback": "La seguridad es responsabilidad de todos; es una oportunidad de mejorar."}
+    ]
+  },
+  {
+    "id": "juice", "spots": ["bus_stop", "street"], "title": "Estación de carga gratuita",
+    "description": "Tu celular está casi sin batería y hay una estación pública de carga USB \"gratis\" en la calle.",
+    "options": [
+      {"text": "Conectar el celular directamente al puerto USB.", "outcome": "bad", "feedback": "Juice jacking: un puerto USB manipulado puede transferir datos o instalar malware."},
+      {"text": "Usar mi propio cargador en un enchufe o un bloqueador de datos USB.", "outcome": "good", "feedback": "Correcto. Así solo pasa energía, no datos."}
+    ]
+  },
+  {
+    "id": "badge", "spots": ["street", "hq_entrance"], "title": "Una tarjeta de acceso perdida",
+    "description": "Encuentras en la acera una tarjeta de acceso de CyberShield con la foto de un compañero.",
+    "options": [
+      {"text": "Guardarla por si la necesito algún día.", "outcome": "bad", "feedback": "Una credencial ajena en tu poder es un riesgo y una falta grave."},
+      {"text": "Entregarla en recepción para desactivarla y avisar a su dueño.", "outcome": "good", "feedback": "Correcto. Se desactiva para que nadie la use y se emite una nueva."},
+      {"text": "Dejarla en el suelo.", "outcome": "neutral", "feedback": "Otra persona con malas intenciones podría usarla."}
+    ]
+  }
+]

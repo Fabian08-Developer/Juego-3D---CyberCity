@@ -1,0 +1,35 @@
+{
+  "id": "ransomware",
+  "name": "Brote de ransomware",
+  "min_level": 2,
+  "severities": ["Crítica"],
+  "titles": ["Archivos cifrados en el servidor de archivos", "Alerta crítica: posible ransomware en {workstation}"],
+  "briefing": "Varios usuarios reportan que no pueden abrir sus documentos. El EDR muestra estos eventos en {workstation}.",
+  "instruction": "Marca los eventos que son INDICADORES de ransomware.",
+  "columns": ["Hora", "Proceso", "Evento"],
+  "pick": {"bad": [3, 4], "good": [3, 3]},
+  "sort_column": 0,
+  "bad": [
+    {"cells": ["10:02", "vssadmin.exe", "delete shadows /all /quiet"], "why": "Borrar las instantáneas de volumen impide recuperar archivos: paso clásico previo al cifrado (T1490)."},
+    {"cells": ["10:03", "wbadmin.exe", "delete catalog -quiet"], "why": "Elimina el catálogo de copias de seguridad de Windows (T1490)."},
+    {"cells": ["10:05", "svch0st.exe", "4.312 archivos renombrados a *.locked en 2 min"], "why": "Renombrado masivo con nueva extensión y un nombre que imita a svchost: cifrado en curso (T1486)."},
+    {"cells": ["10:06", "svch0st.exe", "LEEME_PARA_RECUPERAR.txt creado en cada carpeta"], "why": "Nota de rescate: confirma el ransomware."},
+    {"cells": ["09:58", "psexec.exe", "Ejecución remota en 14 equipos desde {workstation}"], "why": "Propagación lateral con herramientas administrativas (T1570) justo antes del cifrado."}
+  ],
+  "good": [
+    {"cells": ["09:30", "TiWorker.exe", "Instalación de actualizaciones de Windows"], "why": "Windows Update: actividad normal."},
+    {"cells": ["09:45", "MsMpEng.exe", "Análisis antimalware programado"], "why": "Escaneo programado de Microsoft Defender."},
+    {"cells": ["09:50", "veeam-agent.exe", "Copia de seguridad incremental completada"], "why": "Trabajo de respaldo legítimo y programado."},
+    {"cells": ["10:00", "outlook.exe", "Sincronización de buzón"], "why": "Actividad normal del cliente de correo."}
+  ],
+  "action": {
+    "question": "Es ransomware activo. ¿Cuál es la respuesta correcta?",
+    "correct": {"text": "Aislar de inmediato los equipos afectados, activar el plan de respuesta, preservar evidencia, restaurar desde copias offline verificadas y notificar según la ley. No pagar.", "feedback": "Correcto: contener la propagación y recuperar desde respaldos seguros."},
+    "wrong": [
+      {"text": "Pagar el rescate rápido para recuperar los archivos.", "feedback": "No garantiza la recuperación, financia a los criminales y te marca como objetivo."},
+      {"text": "Apagar el antivirus para que el sistema vaya más rápido.", "feedback": "Elimina la capacidad de detectar y frenar el ataque."},
+      {"text": "Esperar a que termine de cifrar y luego investigar.", "feedback": "Cada minuto se cifran más archivos y equipos."},
+      {"text": "Restaurar las copias de seguridad sin aislar los equipos primero.", "feedback": "El ransomware cifraría también los datos restaurados."}
+    ]
+  }
+}

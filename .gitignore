@@ -1,5 +1,10 @@
-node_modules/
-dist/
+# Godot
+.godot/
+*.translation
+export/
+builds/
+# Prototipo web
+prototipo-web/node_modules/
+prototipo-web/dist/
 *.log
 .DS_Store
-.vite/

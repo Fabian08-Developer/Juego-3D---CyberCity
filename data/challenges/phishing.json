@@ -1,0 +1,37 @@
+{
+  "id": "phishing",
+  "name": "Campaña de phishing",
+  "min_level": 0,
+  "severities": ["Baja", "Media", "Media", "Alta"],
+  "titles": ["Correos reportados por los empleados", "Bandeja de cuarentena: revisión diaria"],
+  "briefing": "Varios empleados usaron el botón \"Reportar phishing\". Analiza los correos retenidos en cuarentena.",
+  "instruction": "Marca los correos de PHISHING.",
+  "columns": ["Remitente", "Asunto", "Enlace / Adjunto"],
+  "pick": {"bad": [2, 3], "good": [3, 3]},
+  "bad": [
+    {"cells": ["soporte@micros0ft-seguridad.com", "Su cuenta será suspendida en 24 h", "http://micros0ft-login.xyz/verify"], "why": "Dominio con \"0\" en lugar de \"o\", urgencia artificial y enlace HTTP a un dominio externo."},
+    {"cells": ["rrhh@cybershie1d.lat", "Actualización de nómina – acción requerida", "nomina_octubre.xlsm"], "why": "Dominio suplantado (\"1\" en lugar de \"l\") y adjunto de Excel con macros."},
+    {"cells": ["ceo.cybershield@gmail.com", "Transferencia urgente y confidencial", "(sin enlace) pide transferir $25.000"], "why": "Fraude del CEO (BEC): cuenta gratuita, urgencia y petición de dinero fuera del proceso."},
+    {"cells": ["notificaciones@dhl-entregas.top", "Su paquete está retenido", "https://bit.ly/3xP4qT"], "why": "Dominio no oficial y acortador de URL que oculta el destino real."},
+    {"cells": ["it-helpdesk@{domain}.reset-pass.co", "Restablezca su contraseña hoy", "https://{domain}.reset-pass.co/login"], "why": "El dominio real es reset-pass.co; \"{domain}\" es solo un subdominio engañoso."},
+    {"cells": ["facturacion@proveedor-pagos.example", "Factura vencida #88231", "factura.pdf.js"], "why": "Archivo JavaScript disfrazado de PDF: al abrirlo ejecuta código."},
+    {"cells": ["premios@sorteos-bancolombia.win", "¡Ganaste un iPhone! Reclámalo hoy", "https://reclama-premio.win/form"], "why": "Premio inesperado, dominio sospechoso (.win) y formulario que pedirá datos personales."}
+  ],
+  "good": [
+    {"cells": ["it@{domain}", "Mantenimiento programado de la VPN (sábado 22:00)", "https://intranet.{domain}/avisos"], "why": "Remitente y enlace del dominio corporativo legítimo, sin urgencia ni pedido de datos."},
+    {"cells": ["noreply@github.com", "[GitHub] Revisión solicitada en el PR #142", "https://github.com/cybershield/portal/pull/142"], "why": "Notificación legítima de GitHub a su dominio oficial."},
+    {"cells": ["laura.mendez@{domain}", "Agenda de la reunión de equipo", "invitacion.ics"], "why": "Invitación de calendario de una compañera; archivo .ics normal."},
+    {"cells": ["seguridad@{domain}", "Recordatorio: capacitación anual de seguridad", "https://campus.{domain}"], "why": "Comunicado interno con enlace al dominio corporativo."},
+    {"cells": ["nomina@{domain}", "Tu desprendible de pago está disponible", "https://portal.{domain}/nomina"], "why": "Remitente y portal corporativos; no pide credenciales por correo."}
+  ],
+  "action": {
+    "question": "Confirmaste una campaña de phishing. ¿Qué haces?",
+    "correct": {"text": "Retirar los correos de todos los buzones, bloquear remitentes y dominios, alertar a los usuarios y verificar quién hizo clic.", "feedback": "Correcto: contención, prevención y búsqueda de posibles víctimas."},
+    "wrong": [
+      {"text": "Responder al remitente pidiendo que deje de escribir.", "feedback": "Confirma que el buzón está activo y no protege a nadie."},
+      {"text": "Abrir el enlace desde tu equipo para comprobar si es malicioso.", "feedback": "Se analiza en un sandbox aislado, nunca en tu equipo de trabajo."},
+      {"text": "Reenviar el correo a toda la empresa para que lo vean.", "feedback": "Distribuye el enlace malicioso a más personas."},
+      {"text": "No hacer nada: los usuarios ya lo reportaron.", "feedback": "Otros empleados pudieron recibirlo y hacer clic."}
+    ]
+  }
+}

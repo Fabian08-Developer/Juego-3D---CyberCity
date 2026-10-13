@@ -1,0 +1,36 @@
+{
+  "id": "firewall",
+  "name": "Revisión de reglas del firewall",
+  "min_level": 1,
+  "severities": ["Media", "Alta", "Alta"],
+  "titles": ["Auditoría de reglas del firewall perimetral", "Cambio de reglas pendiente de aprobación"],
+  "briefing": "Antes de aprobar la nueva configuración del firewall perimetral debes revisar las reglas de entrada desde Internet.",
+  "instruction": "Marca las reglas PELIGROSAS.",
+  "columns": ["#", "Origen", "Destino", "Puerto", "Acción", "Comentario"],
+  "pick": {"bad": [2, 3], "good": [3, 4]},
+  "sort_column": 0,
+  "bad": [
+    {"cells": ["10", "Internet (any)", "any", "any", "PERMITIR", "temporal para pruebas"], "why": "Regla \"any-any\": abre toda la red. Las reglas \"temporales\" suelen quedarse para siempre."},
+    {"cells": ["20", "Internet (any)", "srv-archivos", "445/tcp (SMB)", "PERMITIR", "acceso remoto proveedores"], "why": "SMB nunca debe exponerse a Internet (WannaCry, EternalBlue). Usar VPN o SFTP."},
+    {"cells": ["30", "Internet (any)", "dc-01", "3389/tcp (RDP)", "PERMITIR", "soporte remoto"], "why": "RDP expuesto es una de las principales vías de entrada de ransomware. Usar VPN con MFA."},
+    {"cells": ["40", "Internet (any)", "db-prod", "3306/tcp (MySQL)", "PERMITIR", "app móvil"], "why": "La base de datos no debe ser accesible desde Internet; la app debe pasar por una API."},
+    {"cells": ["50", "Internet (any)", "switch-core", "23/tcp (Telnet)", "PERMITIR", "administración"], "why": "Administración por Telnet (texto plano) expuesta a Internet."}
+  ],
+  "good": [
+    {"cells": ["60", "Internet (any)", "web-01 (DMZ)", "443/tcp (HTTPS)", "PERMITIR", "sitio web público"], "why": "Publicar el sitio web por HTTPS en la DMZ es correcto."},
+    {"cells": ["70", "Internet (any)", "mail-01 (DMZ)", "25/tcp (SMTP)", "PERMITIR", "recepción de correo"], "why": "El servidor de correo necesita recibir SMTP desde Internet."},
+    {"cells": ["80", "Internet (any)", "vpn-gw", "443/udp", "PERMITIR", "VPN con MFA"], "why": "Acceso remoto a través de VPN con MFA: la forma correcta."},
+    {"cells": ["90", "{attacker_ip}", "any", "any", "DENEGAR", "IP maliciosa conocida"], "why": "Bloquear IPs con mala reputación es una buena medida."},
+    {"cells": ["999", "any", "any", "any", "DENEGAR", "regla por defecto"], "why": "Denegación por defecto al final: todo lo no permitido explícitamente se bloquea."}
+  ],
+  "action": {
+    "question": "¿Qué decisión tomas sobre el cambio?",
+    "correct": {"text": "Rechazar las reglas peligrosas, aplicar mínimo privilegio (solo lo necesario, desde orígenes concretos) y documentar cada excepción con fecha de vencimiento.", "feedback": "Correcto: principio de mínimo privilegio y gestión de excepciones."},
+    "wrong": [
+      {"text": "Aprobar todo: el proveedor dice que es necesario.", "feedback": "La necesidad de negocio se cubre con alternativas seguras (VPN, API), no abriendo servicios críticos."},
+      {"text": "Desactivar el firewall porque genera muchas quejas.", "feedback": "Elimina una de las principales capas de defensa."},
+      {"text": "Mover la regla \"any-any\" al final para que tenga menos prioridad.", "feedback": "Sigue permitiendo todo lo que no esté bloqueado antes."},
+      {"text": "Cambiar los puertos a números raros para esconder los servicios.", "feedback": "Seguridad por oscuridad: un escaneo los encuentra en segundos."}
+    ]
+  }
+}

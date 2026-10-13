@@ -1,0 +1,36 @@
+{
+  "id": "intrusion",
+  "name": "Intrusión en el sistema",
+  "min_level": 1,
+  "severities": ["Alta", "Crítica", "Crítica"],
+  "titles": ["Accesos sospechosos a la cuenta {victim}", "El SIEM correlacionó eventos de autenticación"],
+  "briefing": "El SIEM correlacionó eventos de autenticación inusuales durante la noche. Revisa el registro.",
+  "instruction": "Marca los eventos que evidencian una INTRUSIÓN.",
+  "columns": ["Hora", "IP origen", "Usuario", "Evento", "Ubicación"],
+  "pick": {"bad": [3, 4], "good": [4, 4]},
+  "sort_column": 0,
+  "bad": [
+    {"required": true, "cells": ["0{hour}:02", "{attacker_ip}", "{victim}", "412 inicios de sesión fallidos en 3 min", "Exterior (VPS)"], "why": "Cientos de fallos en minutos desde una IP externa: ataque de fuerza bruta (T1110)."},
+    {"required": true, "cells": ["0{hour}:05", "{attacker_ip}", "{victim}", "Inicio de sesión EXITOSO (SSH)", "Exterior (VPS)"], "why": "Éxito justo después de la fuerza bruta y desde la misma IP: la cuenta está comprometida."},
+    {"cells": ["0{hour}:09", "{attacker_ip}", "{victim}", "Usuario 'soporte_tmp' creado y añadido a Administradores", "Exterior (VPS)"], "why": "Crear cuentas privilegiadas es una técnica de persistencia (T1136)."},
+    {"cells": ["0{hour}:14", "{attacker_ip}", "{victim}", "Registro de seguridad borrado (Event ID 1102)", "Exterior (VPS)"], "why": "Borrar registros es una técnica anti-forense para ocultar el rastro (T1070)."},
+    {"cells": ["08:15", "{rand_ip}", "{traveler}", "Inicio de sesión exitoso (VPN)", "Otro continente"], "why": "\"Viaje imposible\": {traveler} inició sesión desde la oficina a las 08:07. Probable robo de credenciales."}
+  ],
+  "good": [
+    {"required": true, "cells": ["08:07", "{internal_ip}", "{traveler}", "Inicio de sesión exitoso", "Oficina principal"], "why": "Acceso legítimo desde la oficina."},
+    {"cells": ["08:01", "{internal_ip}", "{user}", "Inicio de sesión exitoso", "Oficina principal"], "why": "Inicio de sesión normal en horario laboral desde la red interna."},
+    {"cells": ["08:20", "{internal_ip}", "{user}", "1 intento fallido y luego éxito", "Oficina principal"], "why": "Un error aislado al escribir la contraseña es normal."},
+    {"cells": ["08:31", "{internal_ip}", "{user}", "Cambio de contraseña (política)", "Oficina principal"], "why": "Cambio de contraseña programado por la política."},
+    {"cells": ["08:45", "{internal_ip}", "{user}", "Cierre de sesión", "Oficina principal"], "why": "Evento rutinario."}
+  ],
+  "action": {
+    "question": "¿Cuál es la respuesta adecuada?",
+    "correct": {"text": "Bloquear la IP, deshabilitar y restablecer las cuentas comprometidas, revocar sesiones activas y buscar movimiento lateral.", "feedback": "Correcto: contención completa y búsqueda del alcance."},
+    "wrong": [
+      {"text": "Solo bloquear la IP; la contraseña robada ya no importa.", "feedback": "El atacante puede volver desde otra IP con la credencial válida."},
+      {"text": "Observar en silencio qué más hace el intruso sin avisar a nadie.", "feedback": "Sin contención el daño crece; cualquier monitoreo debe ser coordinado y autorizado."},
+      {"text": "Eliminar los registros para que no quede rastro del incidente.", "feedback": "Destruye evidencia y puede incumplir obligaciones legales."},
+      {"text": "Cambiar solo tu propia contraseña por precaución.", "feedback": "No afecta las cuentas comprometidas."}
+    ]
+  }
+}

@@ -1,26 +1,28 @@
-# 🛡️ CyberCity
+# CyberCity (Godot 4)
 
-Juego 3D en **primera y tercera persona** donde eres **Ingeniero(a) en Ciberseguridad**. Recorres una mini ciudad con
-supermercado, cafetería, droguería, panadería, banco, librería y más. Tu trabajo está en **CyberShield**, donde durante la
-jornada atiendes incidentes desde la consola del SOC: buscas vulnerabilidades, identificas malware, detienes intrusos y
-desarmas campañas de phishing.
+Juego 3D en **primera y tercera persona** donde eres **Ingeniero(a) en Ciberseguridad**. Recorres una ciudad con
+supermercado, cafetería, droguería, panadería, restaurante, banco, librería, tienda de tecnología y ferretería, **entras
+a los negocios**, y trabajas en **CyberShield**: desde la consola del SOC atiendes incidentes realistas (phishing,
+malware, vulnerabilidades, contraseñas, intrusiones, firewall y ransomware). En la calle también aparecen
+**situaciones de seguridad**: USB abandonados, cajeros con skimmer, Wi-Fi falsos, tailgating, QR fraudulentos y más.
 
-> Estado: **prototipo jugable v0.1** (base técnica + bucle de juego completo). Ver [`docs/GDD.md`](docs/GDD.md) para el diseño y la hoja de ruta.
+> Estado: **v0.2, proyecto Godot 4 + GDScript**. El prototipo web anterior (Three.js) quedó en
+> [`prototipo-web/`](prototipo-web) como referencia. Diseño y hoja de ruta en [`docs/GDD.md`](docs/GDD.md).
 
-| Ciudad | Oficina SOC | Consola de incidentes |
+| Parque y CyberShield | Negocios recorribles | La ciudad de noche |
 | --- | --- | --- |
-| ![Ciudad](docs/img/ciudad.png) | ![Oficina](docs/img/oficina-soc.png) | ![Consola](docs/img/consola-soc.png) |
+| ![Parque](docs/img/parque.jpg) | ![Negocio](docs/img/negocio.jpg) | ![Noche](docs/img/noche.jpg) |
+| **Oficina del SOC** | **Consola de incidentes** | **Situaciones en la calle** |
+| ![SOC](docs/img/oficina-soc.jpg) | ![Consola](docs/img/consola-soc.jpg) | ![Evento](docs/img/evento-ciudad.jpg) |
 
-## Cómo ejecutarlo
+## Cómo abrirlo
 
-Requisitos: Node.js 20+.
+1. Descarga **Godot 4.4 o superior** (versión *Standard*; no hace falta la .NET) desde https://godotengine.org/download
+2. Abre Godot → **Importar** → selecciona el archivo `project.godot` de esta carpeta.
+3. Pulsa **F5** (o el botón ▶) para jugar.
 
-```bash
-npm install
-npm run dev        # abre http://localhost:5173
-npm run build      # typecheck + build de producción en dist/
-npm run preview    # sirve el build
-```
+La primera vez Godot tarda unos segundos en importar el proyecto. Toda la ciudad se genera por código, así que no hay
+modelos ni texturas externas que descargar.
 
 ### Controles
 
@@ -30,56 +32,92 @@ npm run preview    # sirve el build
 | Ratón | Mirar |
 | `Shift` | Correr |
 | `Espacio` | Saltar |
-| `E` | Interactuar (negocios, recepción, estación de trabajo) |
+| `E` | Interactuar (negocios, recepción, compañeros, estación de trabajo, eventos "!") |
 | `V` | Cambiar cámara 1ª / 3ª persona |
 | Rueda | Zoom de la cámara en 3ª persona |
 | `H` | Mostrar/ocultar ayuda |
-| `Esc` | Pausa / cerrar ventanas |
+| `Esc` | Menú de pausa / cerrar ventanas |
 
-### Parámetros de depuración (URL)
+## Qué hay en esta versión
 
-- `?nolock` — juega sin Pointer Lock (útil para pruebas automatizadas).
-- `?time=540` — empieza a una hora concreta (minutos desde las 00:00; 540 = 09:00).
-- En modo desarrollo el objeto `window.__game` expone el estado del juego.
+**Ciudad viva**
+- Cuadrícula de 3×3 manzanas: parque central con fuente, sede de CyberShield, calle comercial, residencias y tu casa.
+- **Negocios con interior recorrible**: puertas automáticas, mostrador con cajero(a), estanterías con productos,
+  mesas de café, ventanillas de banco, mesas de exhibición con portátiles…
+- **Tráfico con semáforos** en todas las intersecciones: los autos respetan la luz roja, guardan distancia y frenan si
+  cruzas delante. Incluye taxis y un bus urbano.
+- Peatones, paradas de bus, farolas, árboles, hidrantes y colinas en el horizonte.
+- **Ciclo día/noche**: el sol recorre el cielo, hay atardecer naranja y de noche se encienden farolas, ventanas,
+  letreros y faros.
 
-## Bucle de juego
+**CyberShield (tu empresa)**
+- Lobby con recepción y torniquetes, oficina abierta con compañeros trabajando (puedes hablar con ellos), cuarto de
+  servidores con LEDs, sala de reuniones con pizarra NIST y **muro de pantallas del SOC en vivo** (mapa de amenazas,
+  tráfico de red y alertas activas).
 
-1. Empiezas a las 07:30 en el parque central. Tu turno en CyberShield comienza a las **08:00**.
-2. Durante la jornada llegan **alertas** (notificación + panel lateral + marcador en el minimapa), cada una con un plazo según su severidad.
-3. En tu **estación de trabajo** del SOC resuelves cada incidente en dos pasos:
-   1. Marcar los elementos maliciosos/vulnerables (servicios, procesos, eventos de log, correos).
-   2. Elegir la respuesta correcta (contención, erradicación, etc.).
-4. Recibes **puntaje, pago y reputación**, con la explicación de cada elemento (aprendizaje real).
-5. La **energía** baja con el tiempo y el trabajo: recupérala en Café Byte, MegaMarket, la panadería o el restaurante.
-6. A las 17:00 ves el resumen del día. Si la reputación llega a 0, te despiden.
+**Trabajo en el SOC**: 7 categorías de incidentes generados al azar.
 
-## Tecnología
-
-| Capa | Elección | Por qué |
+| Categoría | Nivel | Qué analizas |
 | --- | --- | --- |
-| Motor 3D | [Three.js](https://threejs.org) | Estándar de facto para 3D en la web, enorme comunidad, control total. |
-| Lenguaje | TypeScript (estricto) | Tipos para un proyecto que va a crecer. |
-| Bundler | Vite | Recarga instantánea y build optimizado. |
-| UI | HTML/CSS sobre el canvas | Ideal para las consolas, tablas y terminales de los retos de ciberseguridad. |
+| Phishing | 1 | Correos reportados (dominios falsos, fraude del CEO, adjuntos con macros) |
+| Malware | 1 | Procesos (ruta, proceso padre, firma, CPU, conexiones) |
+| Vulnerabilidades | 1 | Resultados de escaneo (Log4Shell, Heartbleed, EternalBlue…) |
+| Contraseñas | 1 | Auditoría de cuentas (contraseñas filtradas, MFA, cuentas de servicio) |
+| Intrusión | 2 | Registros de autenticación (fuerza bruta, persistencia, viaje imposible) |
+| Firewall | 2 | Reglas perimetrales (any-any, RDP o SMB expuestos) |
+| Ransomware | 3 | Eventos del EDR (borrado de shadow copies, cifrado masivo) |
 
-Se eligió **web** porque el juego se puede compartir con un enlace (sin instalar), corre en cualquier PC y la parte
-de ciberseguridad (terminales, logs, correos) se construye mucho mejor con HTML que dentro de un motor. Las alternativas
-(Unity, Godot, Unreal) y cuándo convendría migrar están analizadas en el GDD.
+Cada incidente tiene tres pasos: **marcar elementos → elegir la respuesta → revisar la explicación de cada elemento**.
+
+**Progresión**: energía, dinero, reputación (si llega a 0 te despiden) y **carrera profesional** con XP:
+Analista SOC Junior → Analista SOC → Threat Hunter → Líder del SOC → CISO. Cada nivel desbloquea incidentes más
+complejos y mejor salario. Después de las 17:00 puedes seguir explorando la ciudad de noche o ir a casa a dormir.
+
+## Personalizar sin programar
+
+Todo el contenido está en archivos JSON dentro de `data/`:
+
+| Archivo | Para qué |
+| --- | --- |
+| `data/businesses.json` | Negocios: nombre, colores, estilo de interior, productos y tip de seguridad |
+| `data/challenges/*.json` | Incidentes del SOC: columnas, filas maliciosas y legítimas con su explicación, y la pregunta de respuesta |
+| `data/city_events.json` | Situaciones de seguridad en la ciudad con sus opciones y retroalimentación |
+
+Para crear una **nueva categoría de incidente**, copia un JSON de `data/challenges/`, cambia su contenido y añade su
+nombre a la lista `FILES` en `scripts/cyber/challenge_bank.gd`. Los textos admiten marcadores como `{victim}`,
+`{attacker_ip}`, `{internal_ip}`, `{host}` o `{user}`, que se rellenan al azar en cada partida.
+
+Los parámetros de balance (velocidad, duración del día, dinero, energía, carrera) están en `scripts/core/config.gd`.
 
 ## Estructura
 
 ```
-src/
-  config.ts            Parámetros de balance y trazado de la ciudad
-  main.ts              Punto de entrada
-  core/                Game (orquestador), Input, GameState (guardado), RNG
-  world/               Ciudad, edificios, negocios, sede CyberShield, props, tráfico y peatones
-  player/              Controlador del jugador y cámaras 1ª/3ª persona
-  cyber/               Tipos de incidentes, generadores de retos y jornada laboral
-  data/                Negocios y sus productos
-  ui/                  HUD, minimapa, consola SOC, tiendas y resumen del día
-docs/GDD.md            Documento de diseño y hoja de ruta
+project.godot            Configuración del proyecto (abre esta carpeta en Godot)
+scenes/main.tscn         Escena principal
+scripts/
+  main.gd                Orquestador: reloj, jornada, eventos, ventanas
+  core/                  Config, controles y estado persistente (autoload GameState)
+  world/                 Ciudad, edificios, sede CyberShield, tráfico, peatones, día/noche, materiales
+  player/                Jugador y cámaras 1ª/3ª persona
+  cyber/                 Generador de retos, jornada laboral y eventos de ciudad
+  ui/                    Tema, HUD, minimapa, consola SOC y ventanas
+  debug/                 Prueba de humo automática
+data/                    Contenido editable (JSON)
+docs/GDD.md              Documento de diseño y hoja de ruta
+prototipo-web/           Prototipo anterior en Three.js (referencia)
 ```
 
-Todo el contenido 3D es **procedural** (geometrías y texturas generadas en canvas), así que el prototipo no depende
-de assets externos. El siguiente salto visual es reemplazarlo por modelos glTF (ver hoja de ruta).
+## Pruebas
+
+```bash
+# Estilo y sintaxis de GDScript (gdtoolkit)
+pip install "gdtoolkit==4.*"
+gdlint scripts
+
+# Prueba de humo: inicia una partida y recorre consola SOC, tienda, evento, caminar, dormir y menú de pausa.
+# Termina con código 0 si todo salió bien.
+godot --headless --path . -- --smoke-test
+
+# Igual, pero con ventana y guardando capturas de pantalla
+godot --path . -- --smoke-test --shots=user://capturas
+```

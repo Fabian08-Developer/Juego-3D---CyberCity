@@ -2,110 +2,130 @@
 
 ## 1. Visión
 
-Un juego 3D, en primera y tercera persona, que combina **exploración urbana** con **simulación profesional de
+Juego 3D en primera y tercera persona que combina **exploración urbana** con **simulación profesional de
 ciberseguridad**. El jugador vive la rutina de un(a) Ingeniero(a) en Ciberseguridad: llega al trabajo, atiende alertas
-reales (basadas en CVE y técnicas MITRE ATT&CK auténticas), gestiona su energía y construye su reputación.
+reales (basadas en CVE y técnicas MITRE ATT&CK auténticas), resuelve situaciones de seguridad en la calle, gestiona su
+energía y construye su carrera.
 
 **Pilares**
 
-1. **Realismo educativo** — cada reto enseña algo verdadero (Heartbleed, Log4Shell, BEC, LOLBins, viaje imposible…).
-2. **Presión de tiempo con agencia** — las alertas tienen plazos; el jugador decide cuándo salir a la ciudad y cuándo volver.
-3. **Una ciudad con vida** — negocios útiles, peatones, tráfico y consejos de seguridad del mundo cotidiano.
+1. **Realismo educativo**: cada reto enseña algo verdadero (Heartbleed, Log4Shell, BEC, LOLBins, viaje imposible, evil twin…).
+2. **Presión de tiempo con agencia**: las alertas tienen plazo; el jugador decide cuándo salir a la ciudad y cuándo volver.
+3. **Una ciudad con vida**: negocios recorribles, tráfico con semáforos, peatones, día y noche.
+4. **Contenido editable sin programar**: negocios, retos y eventos viven en JSON.
 
-**Público**: estudiantes y profesionales de TI, entusiastas de la ciberseguridad, uso en formación/concientización corporativa.
+**Público**: estudiantes y profesionales de TI, entusiastas de la ciberseguridad, formación y concientización.
 
-## 2. Decisión tecnológica
+## 2. Tecnología
 
-| Opción | Ventajas | Desventajas | Veredicto |
-| --- | --- | --- | --- |
-| **Three.js + TypeScript (web)** | Se juega desde un enlace; UI HTML perfecta para terminales/logs; iteración rapidísima; gratis | Más trabajo propio para física, animación y editor de niveles | ✅ **Elegida para el MVP** |
-| Unity (C#) | Editor visual, Asset Store, exporta a PC/móvil/WebGL | Build WebGL pesado; UI de texto denso más incómoda | Buena opción si se busca publicar en Steam/móvil |
-| Godot 4 | Libre, ligero, buen editor | Export web aún limitado en 3D; comunidad menor | Alternativa sólida a mediano plazo |
-| Unreal Engine 5 | Gráficos de máximo nivel | Curva alta, builds enormes, sobredimensionado para el alcance | No recomendado |
+**Godot 4.4+ con GDScript** (renderizador Forward+).
 
-**Estrategia**: la lógica de ciberseguridad (`src/cyber/`) es independiente del motor y data-driven. Si en el futuro se
-migra a Unity/Godot, los retos se pueden exportar a JSON y reutilizar sin cambios de diseño.
+- Motor completo y libre: editor visual, física, iluminación, partículas, exportación a Windows/Linux/macOS/Android/Web.
+- GDScript es sencillo de aprender (parecido a Python).
+- El prototipo inicial en Three.js se conserva en `prototipo-web/` como referencia.
 
-## 3. Mecánicas actuales (v0.1)
+Toda la geometría y las texturas se generan por código: el proyecto no depende de assets externos y abre en segundos.
+El siguiente salto visual es sustituir piezas por modelos glTF (ver Fase 3).
+
+## 3. Mecánicas actuales (v0.2)
 
 ### Movimiento y cámara
-- Primera persona y tercera persona (tecla `V`), cámara de hombro con detección de colisión contra paredes.
-- Correr, saltar, colisiones con edificios/árboles/vehículos, aceras con escalón.
+- `CharacterBody3D` con primera y tercera persona (`V`); cámara de hombro con `SpringArm3D` (no atraviesa paredes).
+- Correr, saltar, subir bordillos (step-up propio), zoom con la rueda, cuerpo visible solo como sombra en 1ª persona.
 
 ### Ciudad
-- Cuadrícula 3×3 de manzanas: parque central con fuente, sede **CyberShield** al norte, calle comercial alrededor del parque.
-- Negocios: MegaMarket (supermercado), Café Byte, Droguería Salud+, Pan del Barrio, Restaurante La Esquina, Banco
-  Nacional, Librería Código Abierto, TecnoStore, Ferretería El Tornillo.
-- Cada negocio vende productos con efectos (energía, reputación) y ofrece un **tip de seguridad** contextual.
-- Tráfico que frena ante el jugador, peatones, farolas, árboles, pasos de cebra, ciclo de sol durante la jornada.
+- Cuadrícula 3×3 (manzanas de 40 m, calles de 12 m): parque central con fuente de partículas, sede CyberShield al
+  norte, calle comercial alrededor del parque, residencias y la casa del jugador al sur.
+- **9 negocios con interior**: puertas automáticas, mostrador con cajero(a), y mobiliario según su estilo
+  (`shelves`, `tables`, `bank`, `books`, `tech`). Cada uno vende productos con efectos (energía, reputación, XP) y da un
+  tip de seguridad.
+- **Tráfico**: 32 vehículos (sedán, SUV, taxi, bus) en carriles de doble sentido, **16 intersecciones con semáforo**
+  (ciclo verde/amarillo/todo rojo), distancia de seguimiento y frenado ante el jugador.
+- Peatones en aceras y paseantes en el parque; farolas, árboles, hidrantes, paradas de bus, colinas en el horizonte.
+- **Día/noche**: el sol recorre el cielo (06:00–18:30), atardecer, y de noche se encienden farolas, ventanas, letreros y faros.
 
-### CyberShield (empresa)
-- Planta baja interior: recepción, puestos con compañeros trabajando, racks de servidores, pizarra NIST, muro de
-  pantallas del SOC (mapa de amenazas, tráfico, alertas activas en vivo) y la estación de trabajo del jugador.
+### CyberShield
+- Lobby (recepción, torniquetes, ascensores), oficina abierta con compañeros con los que se puede hablar, cuarto de
+  servidores, sala de reuniones con pizarra NIST, muro del SOC con pantallas en vivo y estación de trabajo del jugador.
 
-### Incidentes (consola SOC)
+### Incidentes del SOC
 
-| Categoría | El jugador analiza | Ejemplos de lo que debe detectar |
+| Categoría | Nivel mínimo | Ejemplos de lo que se debe detectar |
 | --- | --- | --- |
-| 🛡️ Vulnerabilidades | Resultado de escaneo (host, puerto, servicio, versión) | Apache 2.4.49, OpenSSL 1.0.1f, Log4j 2.14.1, SMBv1, vsftpd 2.3.4, Redis sin auth |
-| 🦠 Malware | Lista de procesos (padre, ruta, firma, CPU, red) | svchost fuera de System32, PowerShell `-enc` desde Word, criptominero, doble extensión |
-| 🚨 Intrusión | Logs de autenticación | Fuerza bruta + éxito, cuenta admin creada, logs borrados, viaje imposible |
-| 🎣 Phishing | Bandeja de correos reportados | Homógrafos, subdominios engañosos, fraude del CEO, adjuntos con macros |
+| Phishing | 1 | Homógrafos, subdominios engañosos, fraude del CEO, adjuntos con macros |
+| Malware | 1 | svchost fuera de System32, PowerShell `-enc` desde Word, criptominero, doble extensión |
+| Vulnerabilidades | 1 | Apache 2.4.49, OpenSSL 1.0.1f, Log4j 2.14.1, SMBv1, vsftpd 2.3.4, Redis sin auth |
+| Contraseñas | 1 | Contraseñas filtradas o predecibles, sin MFA, cuentas de servicio sin rotación |
+| Intrusión | 2 | Fuerza bruta + éxito, cuentas creadas, logs borrados, viaje imposible |
+| Firewall | 2 | Reglas any-any, SMB/RDP/MySQL/Telnet expuestos |
+| Ransomware | 3 | Borrado de shadow copies y catálogo de backups, cifrado masivo, nota de rescate, PsExec |
 
-Flujo: **marcar elementos → elegir respuesta → revisión con explicación**. Puntaje = 70 % clasificación + 30 % respuesta.
-Pago y reputación escalan con la severidad (Baja ×0.8 … Crítica ×1.5). Los incidentes no atendidos a tiempo escalan (−6 ⭐).
+Flujo: **marcar elementos → elegir la respuesta → revisión con explicación de cada fila**.
+Puntaje = 70 % clasificación + 30 % respuesta. Pago, reputación y XP escalan con la severidad
+(Baja ×0.8 … Crítica ×1.5). Un incidente sin atender a tiempo escala (−6 de reputación).
+
+### Eventos de ciudad
+Diez situaciones que aparecen en lugares concretos (marcadas con "!" y en el minimapa): USB abandonado, skimmer en el
+cajero, Wi-Fi gemelo malvado, vishing, tailgating, QR fraudulento, shoulder surfing, contraseña en post-it, juice
+jacking y tarjeta de acceso perdida. Cada decisión da XP y reputación con retroalimentación.
 
 ### Progresión
-- Energía (baja con el tiempo y al resolver incidentes; <20 = caminas más lento).
-- Dinero (pago por incidente + salario diario) y reputación (0 = despido).
-- Cada día llegan más incidentes. Guardado automático al terminar el día.
+- Energía (baja con el tiempo y al trabajar; < 20 = caminas más lento), dinero y reputación (0 = despido).
+- **Carrera**: Analista SOC Junior (N1) → Analista SOC (N2) → Threat Hunter → Líder del SOC → CISO. Cada nivel
+  desbloquea categorías, aumenta el número de incidentes y el salario.
+- Tras las 17:00: resumen del día; se puede seguir explorando de noche o dormir en casa (salario y nuevo día).
+- Guardado automático en `user://` al dormir.
 
-## 4. Hoja de ruta
-
-### Fase 1 — Fundamentos (✅ este prototipo)
-- [x] Proyecto Vite + TypeScript + Three.js
-- [x] Ciudad procedural, negocios, sede con interior
-- [x] Controlador 1ª/3ª persona con colisiones
-- [x] Sistema de jornada, 4 categorías de incidentes con generación aleatoria
-- [x] HUD, minimapa, consola SOC, tiendas, resumen diario, guardado
-
-### Fase 2 — Contenido de ciberseguridad
-- [ ] Nuevas categorías: ransomware (respuesta y recuperación desde backups), DDoS, fuga de datos (DLP), ingeniería social
-  presencial (alguien intenta entrar sin tarjeta), configuración de firewall, revisión de código (SQLi/XSS), análisis de PCAP.
-- [ ] Mini-terminal interactiva (comandos tipo `nmap`, `grep`, `netstat`) para retos avanzados.
-- [ ] Incidentes encadenados (un phishing ignorado → malware → intrusión).
-- [ ] Mapeo explícito a MITRE ATT&CK y glosario/enciclopedia desbloqueable.
-- [ ] Niveles de carrera: Analista N1 → N2 → Threat Hunter → CISO, con certificaciones (libros/cursos en la ciudad).
-
-### Fase 3 — Mundo y arte
-- [ ] Reemplazar geometría procedural por modelos **glTF** (Kenney / Quaternius, licencia CC0) y personajes rigged
-  (Mixamo) con animaciones de caminar/correr/teclear.
-- [ ] Interiores visitables de los negocios y NPC con diálogos.
-- [ ] Ciclo día/noche completo con iluminación nocturna, clima.
-- [ ] Física con **Rapier** (`@dimforge/rapier3d-compat`) y semáforos/IA de tráfico.
-- [ ] Audio ambiental y efectos (Howler.js).
-
-### Fase 4 — Producción
-- [ ] Menú de opciones (calidad gráfica, sensibilidad, idioma ES/EN).
-- [ ] Soporte de mando y controles táctiles.
-- [ ] Tests unitarios de la lógica de retos (Vitest) y pruebas E2E (Playwright).
-- [ ] CI en GitHub Actions + despliegue en GitHub Pages / Netlify.
-- [ ] Telemetría opcional de aprendizaje (qué conceptos fallan más los jugadores).
-
-## 5. Arquitectura
+## 4. Arquitectura
 
 ```
-Game (orquestador) ──► World (escena, colisiones, interactuables, updaters)
-   │                      ├── City → Buildings / HQ / Props (instanciados)
-   │                      └── Life → tráfico y peatones
-   ├── Player (movimiento + cámaras)
-   ├── GameState (hora, energía, dinero, reputación, guardado)
-   ├── WorkDay (agenda de incidentes, plazos, recompensas)
-   │      └── generators → Challenge (datos puros, independientes del motor)
-   └── UI: HUD, Minimap, Modal → SocConsole / Shop / DaySummary
+main.gd (orquestador: reloj, jornada, eventos, ventanas)
+├── CityBuilder ─► Buildings / HQ / Props (MultiMesh vía Batcher) ─► CityData (minimapa, marcadores, lugares de eventos)
+├── DayNight (WorldEnvironment, sol, luna, cielo, luces nocturnas)
+├── Player (CharacterBody3D + SpringArm3D + Person)
+├── Traffic (semáforos + AnimatableBody3D) · Pedestrians
+├── WorkDay ─► ChallengeBank ─► data/challenges/*.json
+├── CityEvents ─► data/city_events.json
+└── UiRoot (CanvasLayer, pausa el árbol con ventanas abiertas)
+    ├── Hud (+ Minimap)
+    └── Dialogs / SocConsole
+GameState (autoload: día, hora, dinero, reputación, energía, XP, guardado)
 ```
 
-- **Data-driven**: añadir un negocio = una entrada en `src/data/businesses.ts`; añadir un tipo de incidente = un
-  generador que devuelva un `Challenge`.
-- **Rendimiento**: los props repetidos se agrupan en `InstancedMesh` (`world/Instancer.ts`).
-- **Seguridad del contenido**: las IP atacantes usan rangos de documentación (RFC 5737) y los dominios son ficticios.
+- **Data-driven**: añadir un negocio, un tipo de incidente o un evento no requiere tocar la lógica.
+- **Rendimiento**: árboles, farolas, bancas y pasos de cebra se agrupan en `MultiMeshInstance3D`.
+- **Contenido seguro**: las IP atacantes usan rangos de documentación (RFC 5737) y los dominios son ficticios.
+- **Calidad gráfica** ajustable en el menú de pausa (SSAO, glow, distancia de sombras, MSAA).
+
+## 5. Pruebas
+
+- `gdlint scripts`: estilo y errores de sintaxis (gdtoolkit).
+- Prueba de humo automática: `godot --headless --path . -- --smoke-test` recorre inicio de partida, generación de
+  las 7 categorías, consola SOC, tienda, evento de ciudad, caminar, dormir y menú de pausa; termina con código 0 si todo
+  sale bien. Con ventana añade `--shots=<carpeta>` para guardar capturas.
+
+## 6. Hoja de ruta
+
+### Fase 1 — Fundamentos (prototipo web) ✅
+### Fase 2 — Proyecto Godot v0.2 ✅
+- [x] Ciudad, negocios con interior, sede con SOC, tráfico con semáforos, peatones, día/noche
+- [x] 7 categorías de incidentes en JSON, 10 eventos de ciudad, carrera profesional
+- [x] HUD, minimapa, consola SOC, tiendas, menús, guardado, calidad gráfica, prueba de humo
+
+### Fase 3 — Arte y mundo
+- [ ] Modelos glTF CC0 (Kenney City Kit, Quaternius) y personajes con animaciones (Mixamo) usando `AnimationTree`.
+- [ ] Interior de la casa del jugador y pisos superiores de CyberShield (laboratorio forense, sala de crisis).
+- [ ] Clima (lluvia amazónica), sonido ambiente y música.
+- [ ] Navegación de NPC con `NavigationAgent3D` (entran a los negocios, cruzan calles con el semáforo).
+
+### Fase 4 — Contenido de ciberseguridad
+- [ ] Terminal interactiva con comandos simulados (`nmap`, `grep`, `netstat`, `whois`) para retos avanzados.
+- [ ] Incidentes encadenados (phishing ignorado → malware → ransomware) y campañas de varios días.
+- [ ] Categorías nuevas: DLP / fuga de datos, análisis de PCAP, revisión de código (SQLi, XSS), nube (buckets públicos).
+- [ ] Glosario / enciclopedia desbloqueable con mapeo a MITRE ATT&CK.
+- [ ] Editor de retos dentro del juego (o importador desde hoja de cálculo) para instructores.
+
+### Fase 5 — Producción
+- [ ] Opciones completas (sensibilidad, volumen, idioma ES/EN, reasignar teclas), soporte de mando.
+- [ ] Exportación a Windows/Linux/Web y CI que ejecute `gdlint` + prueba de humo en cada cambio.
+- [ ] Modo multijugador (compañeros reales en el mismo SOC) con la API de red de Godot.
