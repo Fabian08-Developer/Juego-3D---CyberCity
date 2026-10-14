@@ -25,24 +25,81 @@ static func filler(parent: Node3D, city: CityData, lot: Dictionary, rng: RandomN
 	var n := _root(parent, lot)
 	var w: float = lot["w"]
 	var d: float = lot["d"]
-	var h := 10.0 + rng.randi_range(0, 6) * 4.0
+	var floors := rng.randi_range(3, 9)
+	var h := floors * 3.4 - Config.SIDEWALK_H
 	var curtain := rng.randf() < 0.3
 	var wall: String = FILLER_WALLS[rng.randi_range(0, FILLER_WALLS.size() - 1)]
-	Geo.box(n, Vector3(w, h, d), Vector3(0, h / 2.0, 0), Mats.facade(wall, curtain, rng.randi_range(0, 2)))
+	var facade := Mats.facade(wall, curtain, rng.randi_range(0, 2))
 	var trim := Mats.color("#4a4f57", 0.8)
-	Geo.box(n, Vector3(w + 0.4, 0.5, d + 0.4), Vector3(0, h + 0.25, 0), trim, false)
+	var setback := curtain and floors >= 7
+	var body_h := h - 6.8 if setback else h
+	Geo.box(n, Vector3(w, body_h, d), Vector3(0, body_h / 2.0, 0), facade)
+	_architecture(n, w, d, body_h, wall, curtain, rng)
+	if setback:
+		Geo.box(n, Vector3(w - 3.0, 6.8, d - 3.0), Vector3(0, body_h + 3.4, 0), facade, false)
+		_parapet(n, w - 3.0, d - 3.0, h, trim)
 	# Entrada con marquesina y lámpara
 	Geo.box(n, Vector3(1.8, 2.5, 0.12), Vector3(0, 1.25, d / 2.0 + 0.06), Mats.color("#3a2c22", 0.6), false)
 	Geo.box(n, Vector3(3.2, 0.14, 1.5), Vector3(0, 2.95, d / 2.0 + 0.75), trim, false)
 	Geo.box(n, Vector3(0.5, 0.06, 0.5), Vector3(0, 2.86, d / 2.0 + 0.75), Mats.night_emissive("#ffe2a8", 0.2, 5.0), false, false)
-	# Azotea: equipos de aire acondicionado y tanque
+	# Azotea: equipos de aire acondicionado, tanque y antena
 	for i in rng.randi_range(1, 3):
-		var p := Vector3(rng.randf_range(-w / 3.0, w / 3.0), h + 0.95, rng.randf_range(-d / 3.0, d / 3.0))
+		var p := Vector3(rng.randf_range(-w / 4.0, w / 4.0), h + 0.45, rng.randf_range(-d / 4.0, d / 4.0))
 		Geo.box(n, Vector3(1.4, 0.9, 1.0), p, Mats.color("#9aa1a9", 0.6, 0.3), false)
-	Geo.mesh(n, Geo.cylinder_mesh(0.9, 0.9, 1.8, 12), Vector3(-w / 4.0, h + 1.4, d / 5.0), trim)
+	Geo.mesh(n, Geo.cylinder_mesh(0.9, 0.9, 1.8, 12), Vector3(-w / 4.0, h + 0.9, d / 5.0), trim)
+	if rng.randf() < 0.4:
+		Geo.mesh(n, Geo.cylinder_mesh(0.04, 0.06, 4.0, 6), Vector3(w / 4.0, h + 2.0, -d / 4.0), Mats.color("#c9ced4", 0.3, 0.8))
 	var color := Color("#4b6a85") if curtain else map_color
 	city.add_shape(lot["x"] - w / 2.0, lot["z"] - d / 2.0, lot["x"] + w / 2.0, lot["z"] + d / 2.0, color, label)
 	return n
+
+
+## Zócalo, cornisas por piso, pretil y balcones según el estilo del edificio.
+static func _architecture(n: Node3D, w: float, d: float, h: float, wall: String, curtain: bool, rng: RandomNumberGenerator) -> void:
+	var base := Color(wall).darkened(0.35)
+	var trim := Mats.color("#4a4f57", 0.8)
+	Geo.box(n, Vector3(w + 0.14, 1.0, d + 0.14), Vector3(0, 0.5, 0), Mats.color(base.to_html(false), 0.9), false)
+	if not curtain:
+		var ledge := Mats.color(Color(wall).lightened(0.25).to_html(false), 0.8)
+		var y := 3.4 - Config.SIDEWALK_H
+		while y < h - 1.0:
+			Geo.box(n, Vector3(w + 0.22, 0.14, d + 0.22), Vector3(0, y, 0), ledge, false)
+			y += 3.4
+		if rng.randf() < 0.55:
+			_balconies(n, w, d, h, rng)
+	else:
+		# Aletas verticales de la fachada de vidrio
+		var fin := Mats.color("#aab4bf", 0.35, 0.6)
+		for x in [-w / 2.0 + 0.05, w / 2.0 - 0.05]:
+			Geo.box(n, Vector3(0.18, h, 0.35), Vector3(x, h / 2.0, d / 2.0 + 0.1), fin, false)
+	_parapet(n, w, d, h, trim)
+
+
+static func _parapet(n: Node3D, w: float, d: float, h: float, mat: Material) -> void:
+	var t := 0.25
+	var ph := 0.9
+	Geo.box(n, Vector3(w + 0.1, ph, t), Vector3(0, h + ph / 2.0, d / 2.0 - t / 2.0 + 0.05), mat, false)
+	Geo.box(n, Vector3(w + 0.1, ph, t), Vector3(0, h + ph / 2.0, -d / 2.0 + t / 2.0 - 0.05), mat, false)
+	Geo.box(n, Vector3(t, ph, d), Vector3(w / 2.0 - t / 2.0 + 0.05, h + ph / 2.0, 0), mat, false)
+	Geo.box(n, Vector3(t, ph, d), Vector3(-w / 2.0 + t / 2.0 - 0.05, h + ph / 2.0, 0), mat, false)
+
+
+## Balcones con baranda de vidrio en la fachada principal (desde el segundo piso).
+static func _balconies(n: Node3D, w: float, d: float, h: float, rng: RandomNumberGenerator) -> void:
+	var slab := Mats.color("#d8d4cc", 0.8)
+	var rail := Mats.glass("#bfe3f5", 0.35)
+	var metal := Mats.color("#3d434b", 0.4, 0.6)
+	var cols := [-w / 4.0, w / 4.0] if rng.randf() < 0.6 else [0.0]
+	var y := 3.4 - Config.SIDEWALK_H
+	while y < h - 2.0:
+		for x in cols:
+			var z := d / 2.0 + 0.6
+			Geo.box(n, Vector3(3.0, 0.14, 1.2), Vector3(x, y, z), slab, false)
+			Geo.box(n, Vector3(3.0, 0.95, 0.04), Vector3(x, y + 0.55, z + 0.58), rail, false, false)
+			Geo.box(n, Vector3(3.04, 0.05, 0.06), Vector3(x, y + 1.04, z + 0.58), metal, false, false)
+			if rng.randf() < 0.35:
+				Geo.mesh(n, Geo.sphere_mesh(0.28, 8, 5), Vector3(x + 1.0, y + 0.35, z + 0.2), Mats.color("#3c9a3f", 0.9))
+		y += 3.4
 
 
 ## Punto frente a la puerta de un edificio (en mundo).
@@ -97,7 +154,12 @@ static func business(parent: Node3D, city: CityData, lot: Dictionary, def: Dicti
 	# --- Pisos superiores (su cara inferior es el techo de la tienda) ---
 	var upper := h - gh
 	Geo.box(n, Vector3(w, upper, d), Vector3(0, gh + upper / 2.0, 0), Mats.facade(str(def.get("wall", "#cccccc")), false, 1))
-	Geo.box(n, Vector3(w + 0.4, 0.45, d + 0.4), Vector3(0, h + 0.22, 0), Mats.color("#4a4f57", 0.8), false)
+	var ledge := Mats.color(Color(str(def.get("wall", "#cccccc"))).lightened(0.25).to_html(false), 0.8)
+	var ly := gh + 3.4
+	while ly < h - 1.0:
+		Geo.box(n, Vector3(w + 0.22, 0.14, d + 0.22), Vector3(0, ly, 0), ledge, false)
+		ly += 3.4
+	_parapet(n, w, d, h, Mats.color("#4a4f57", 0.8))
 	Geo.box(n, Vector3(w + 0.1, 0.25, 0.5), Vector3(0, gh + 0.1, d / 2.0 + 0.1), Mats.color("#3a3f47", 0.8), false)
 
 	# --- Toldo y letrero luminoso ---

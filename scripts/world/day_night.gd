@@ -6,7 +6,7 @@ const SUNRISE := 6.0 * 60.0
 const SUNSET := 18.5 * 60.0
 
 var env := Environment.new()
-var sky_mat := ProceduralSkyMaterial.new()
+var sky_mat := ShaderMaterial.new()
 var sun := DirectionalLight3D.new()
 var moon := DirectionalLight3D.new()
 var night := 0.0
@@ -19,6 +19,7 @@ var _last_minute := -1
 func setup(parent: Node, city: CityData) -> void:
 	_city = city
 	var sky := Sky.new()
+	sky_mat.shader = load("res://shaders/sky.gdshader")
 	sky.sky_material = sky_mat
 	# Incremental: la iluminación ambiental se recalcula en unos pocos cuadros tras cada cambio.
 	# Por eso el cielo se actualiza una vez por minuto de juego y no en cada cuadro.
@@ -83,11 +84,14 @@ func update(minutes: float, force := false) -> void:
 	var dusk := smoothstep(0.4, 0.05, day) * (1.0 - night)
 	var top := Color("#03060f").lerp(Color("#2f6fc0"), 1.0 - night).lerp(Color("#3d4f8f"), dusk * 0.6)
 	var hor := Color("#16264a").lerp(Color("#a8d2f0"), 1.0 - night).lerp(Color("#f2a273"), dusk)
-	sky_mat.sky_top_color = top
-	sky_mat.sky_horizon_color = hor
-	sky_mat.ground_horizon_color = hor.darkened(0.2)
-	sky_mat.ground_bottom_color = Color("#1d2a1a").lerp(Color("#3c5a32"), 1.0 - night)
-	sky_mat.sky_energy_multiplier = lerpf(0.3, 1.0, 1.0 - night)
+	sky_mat.set_shader_parameter("top_color", top)
+	sky_mat.set_shader_parameter("horizon_color", hor)
+	sky_mat.set_shader_parameter("ground_color", Color("#1d2a1a").lerp(Color("#3c5a32"), 1.0 - night))
+	var cloud := Color("#2a3346").lerp(Color("#ffffff"), 1.0 - night).lerp(Color("#ffc9a3"), dusk * 0.8)
+	sky_mat.set_shader_parameter("cloud_light", cloud)
+	sky_mat.set_shader_parameter("cloud_shadow", cloud.darkened(0.3).lerp(Color("#8e6b8f"), dusk * 0.5))
+	sky_mat.set_shader_parameter("night", night)
+	sky_mat.set_shader_parameter("energy", lerpf(0.45, 1.0, 1.0 - night))
 	env.ambient_light_energy = lerpf(0.45, 1.0, 1.0 - night)
 	env.fog_light_color = hor
 

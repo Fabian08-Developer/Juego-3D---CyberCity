@@ -29,7 +29,7 @@ func _ready() -> void:
 	cs.position.y = 0.9
 	add_child(cs)
 
-	model.setup({"skin": "#e0ac69", "shirt": "#0f172a", "pants": "#334155", "hair": "#1b1b1b"}, true)
+	model.setup({"skin": "#e0ac69", "shirt": "#e2e8f0", "pants": "#1e293b", "hair": "#1b1b1b", "style": "formal", "hair_style": "short"}, true)
 	add_child(model)
 
 	add_child(_yaw_node)

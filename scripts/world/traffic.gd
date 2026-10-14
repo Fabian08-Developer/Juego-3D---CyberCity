@@ -8,7 +8,6 @@ const CYCLE := 33.0
 const SPAN := Config.HALF + 30.0
 const STOP_BACK := Config.ROAD / 2.0 + 1.6
 const Y := Config.SIDEWALK_H
-const COLORS := ["#c0392b", "#2980b9", "#ecf0f1", "#2c3e50", "#16a085", "#8e44ad", "#7f8c8d", "#d35400", "#27ae60"]
 
 var player: Node3D
 var _cars: Array = []
@@ -106,7 +105,7 @@ func _update_lights() -> void:
 func _spawn_cars() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5
-	var kinds := ["sedan", "sedan", "suv", "taxi", "sedan", "suv"]
+	var kinds := ["sedan", "sedan", "suv", "taxi", "sedan", "suv", "pickup", "sedan"]
 	for k in N:
 		var c: float = _centers[k]
 		var lanes := [["x", 1, c + Config.LANE_OFFSET], ["x", -1, c - Config.LANE_OFFSET], ["z", 1, c - Config.LANE_OFFSET], ["z", -1, c + Config.LANE_OFFSET]]
@@ -121,7 +120,7 @@ func _spawn_cars() -> void:
 					"node": car, "axis": lane[0], "dir": lane[1], "lane": lane[2], "road": k,
 					"s": -SPAN + (i + rng.randf() * 0.4) * SPAN, "speed": 0.0,
 					"max": rng.randf_range(8.0, 12.0) * (0.7 if kind == "bus" else 1.0),
-					"len": 10.0 if kind == "bus" else 4.5, "key": key,
+					"len": float(car.get_meta("length")), "key": key,
 				}
 				_cars.append(data)
 				_lanes[key].append(data)
@@ -129,54 +128,17 @@ func _spawn_cars() -> void:
 
 func _make_car(kind: String, rng: RandomNumberGenerator) -> AnimatableBody3D:
 	var body := AnimatableBody3D.new()
-	var paint_hex: String = COLORS[rng.randi_range(0, COLORS.size() - 1)]
-	if kind == "taxi":
-		paint_hex = "#f4c20d"
-	elif kind == "bus":
-		paint_hex = "#e8e8e8"
-	var paint := Mats.color(paint_hex, 0.3, 0.5)
-	var glass := Mats.color("#1b2a38", 0.1, 0.8)
-	var w := 1.9
-	var length := 4.3
-	var h := 1.6
-	match kind:
-		"bus":
-			w = 2.5
-			length = 10.0
-			h = 3.0
-			Geo.box(body, Vector3(w, 2.5, length), Vector3(0, 1.65, 0), paint, false)
-			Geo.box(body, Vector3(w + 0.02, 0.9, length - 1.6), Vector3(0, 2.15, -0.3), glass, false)
-			Geo.box(body, Vector3(w + 0.02, 0.3, length), Vector3(0, 1.1, 0), Mats.color("#00a5c8", 0.4), false)
-			Geo.box(body, Vector3(w - 0.3, 1.2, 0.05), Vector3(0, 2.2, length / 2.0), glass, false)
-			var route := Geo.label(body, "C1 · Centro", Vector3(0, 2.75, length / 2.0 + 0.04), 40, Color(1.8, 1.4, 0.3), 0.008)
-			route.outline_size = 0
-		"suv":
-			w = 2.0
-			length = 4.6
-			h = 1.9
-			Geo.box(body, Vector3(w, 0.9, length), Vector3(0, 0.75, 0), paint, false)
-			Geo.box(body, Vector3(w - 0.15, 0.75, 2.9), Vector3(0, 1.55, -0.3), glass, false)
-		_:
-			Geo.box(body, Vector3(w, 0.7, length), Vector3(0, 0.6, 0), paint, false)
-			Geo.box(body, Vector3(w - 0.2, 0.6, 2.2), Vector3(0, 1.25, -0.2), glass, false)
-			if kind == "taxi":
-				Geo.box(body, Vector3(0.7, 0.22, 0.3), Vector3(0, 1.66, -0.2), Mats.emissive("#fff3b0", 1.5), false)
-	var r := 0.5 if kind == "bus" else 0.35
-	var wheel := Mats.color("#111111", 0.9)
-	for x in [-w / 2.0, w / 2.0]:
-		for z in [length / 2.0 - 0.9, -length / 2.0 + 0.9]:
-			var wm := Geo.mesh(body, Geo.cylinder_mesh(r, r, 0.28, 14), Vector3(x, r, z), wheel)
-			wm.rotation.z = PI / 2.0
-	var front_y := 0.75 if kind != "bus" else 0.9
-	for x in [-w / 2.0 + 0.35, w / 2.0 - 0.35]:
-		Geo.box(body, Vector3(0.38, 0.16, 0.05), Vector3(x, front_y, length / 2.0 + 0.01), _head_mat, false, false)
-		Geo.box(body, Vector3(0.38, 0.16, 0.05), Vector3(x, front_y, -length / 2.0 - 0.01), _tail_mat, false, false)
+	# Se mueve por código cada cuadro de física: sin sincronización, la posición asignada se aplica tal cual.
+	body.sync_to_physics = false
+	var info := Vehicles.build(kind, rng, _head_mat, _tail_mat)
+	body.add_child(info["node"])
 	var cs := CollisionShape3D.new()
 	var shape := BoxShape3D.new()
-	shape.size = Vector3(w, h, length)
+	shape.size = Vector3(info["width"], info["height"], info["length"])
 	cs.shape = shape
-	cs.position.y = h / 2.0 + 0.1
+	cs.position.y = float(info["height"]) / 2.0 + 0.1
 	body.add_child(cs)
+	body.set_meta("length", info["length"])
 	return body
 
 

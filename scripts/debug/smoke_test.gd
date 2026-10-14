@@ -73,9 +73,69 @@ func _night_probe() -> void:
 	get_tree().quit(0)
 
 
+## Vitrina de modelos: todos los vehículos y estilos de personaje en fila (para revisar el diseño).
+func _showcase() -> void:
+	main.started = false
+	GameState.minutes = 9 * 60 + 30
+	main.day_night.update(GameState.minutes, true)
+	var base := Vector3(0, 0, 130)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 4
+	var head := Mats.night_emissive("#fff8d0", 0.4, 6.0)
+	var tail := Mats.night_emissive("#ff2020", 0.6, 3.0)
+	var x := -13.0
+	for kind in ["sedan", "taxi", "suv", "pickup", "bus"]:
+		var info := Vehicles.build(kind, rng, head, tail)
+		var n: Node3D = info["node"]
+		n.position = base + Vector3(x, 0, 0)
+		n.rotation.y = 0.6
+		main.add_child(n)
+		x += 2.6 + float(info["width"]) + (4.0 if kind == "pickup" else 0.0)
+	var styles := ["casual", "formal", "skirt", "hoodie", "casual", "formal"]
+	var hairs := ["short", "long", "bun", "cap", "long", "short"]
+	for i in styles.size():
+		var c := Person.random_colors(rng)
+		c["style"] = styles[i]
+		c["hair_style"] = hairs[i]
+		var p := Person.new().setup(c, i % 2 == 0)
+		p.position = base + Vector3(-6.0 + i * 1.3, 0, 6.5)
+		p.rotation.y = 0.25
+		main.add_child(p)
+	main.player.spawn(base + Vector3(-3.0, 0.2, 15.0), 0.0)
+	main.player.set("_pitch", -0.12)
+	await _frames(40)
+	await _shot("vitrina")
+	main.player.toggle_camera()
+	main.player.spawn(base + Vector3(-2.5, 0.2, 9.8), 0.0)
+	main.player.set("_pitch", -0.2)
+	await _frames(20)
+	await _shot("vitrina_personas")
+	main.player.spawn(base + Vector3(-6.0, 0.2, 6.0), 0.0)
+	main.player.set("_pitch", -0.18)
+	await _frames(20)
+	await _shot("vitrina_autos")
+	main.player.spawn(base + Vector3(9.0, 0.2, 9.0), 0.35)
+	await _frames(20)
+	await _shot("vitrina_bus")
+	main.player.spawn(Vector3(0, 0.3, 12), 0.4)
+	main.player.set("_pitch", 0.75)
+	await _frames(20)
+	await _shot("vitrina_cielo")
+	GameState.minutes = 17 * 60 + 50
+	main.day_night.update(GameState.minutes, true)
+	main.player.set("_pitch", 0.15)
+	main.player.spawn(Vector3(0, 0.3, 12), -1.4)
+	await _frames(30)
+	await _shot("vitrina_atardecer")
+	get_tree().quit(0)
+
+
 func _run() -> void:
 	await _wait(0.5)
 	main._start_game(false)
+	if "--showcase" in OS.get_cmdline_user_args():
+		await _showcase()
+		return
 	if "--night-probe" in OS.get_cmdline_user_args():
 		await _night_probe()
 		return

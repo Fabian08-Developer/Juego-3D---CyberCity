@@ -2,16 +2,52 @@ class_name Props
 extends RefCounted
 ## Mobiliario urbano. Los elementos repetidos se envían al Batcher (MultiMesh).
 
+## Árbol con tronco y varias copas; `variant` cambia el tono y la forma.
 static func tree(batch: Batcher, parent: Node3D, pos: Vector3, scale := 1.0, variant := 0) -> void:
-	var trunk_mat := Mats.color("#6b4a2b")
-	var leaves := ["#2f7d32", "#3c9a3f", "#4f8f2a"]
-	var leaf_mat := Mats.color(leaves[variant % leaves.size()], 0.9)
-	var basis := Basis.from_scale(Vector3.ONE * scale)
-	batch.add(Geo.cylinder_mesh(0.14, 0.2, 2.4, 7), trunk_mat, Transform3D(basis, pos + Vector3(0, 1.2 * scale, 0)))
-	var rot := Basis(Vector3.UP, float(variant) * 1.3)
-	batch.add(Geo.sphere_mesh(1.5, 8, 5), leaf_mat, Transform3D(rot.scaled(Vector3(1, 0.9, 1) * scale), pos + Vector3(0, 3.0 * scale, 0)))
-	batch.add(Geo.sphere_mesh(1.1, 8, 5), leaf_mat, Transform3D(rot.scaled(Vector3.ONE * scale), pos + Vector3(0.3 * scale, 4.0 * scale, -0.2 * scale)))
+	var trunk_mat := Mats.color("#5e4128", 0.95)
+	var leaves := ["#2f7d32", "#3c9a3f", "#4f8f2a", "#2e6b3a"]
+	var leaf_mat := Mats.color(leaves[variant % leaves.size()], 0.95)
+	var leaf_light := Mats.color(Color(leaves[variant % leaves.size()]).lightened(0.18).to_html(false), 0.95)
+	var s := Vector3.ONE * scale
+	batch.add(Geo.cylinder_mesh(0.12, 0.22, 2.6, 8), trunk_mat, Transform3D(Basis.from_scale(s), pos + Vector3(0, 1.3, 0) * scale))
+	var rot := Basis(Vector3.UP, float(variant) * 1.7 + pos.x * 0.37)
+	var clumps := [
+		[Vector3(0, 3.1, 0), 1.45, leaf_mat],
+		[Vector3(0.75, 3.6, -0.35), 1.05, leaf_light],
+		[Vector3(-0.7, 3.45, 0.45), 1.0, leaf_mat],
+		[Vector3(0.1, 4.25, 0.15), 0.85, leaf_light],
+		[Vector3(-0.2, 3.0, -0.75), 0.8, leaf_mat],
+	]
+	for c in clumps:
+		var r: float = c[1]
+		var b := rot.scaled(Vector3(r, r * 0.9, r) * scale)
+		batch.add(Geo.sphere_mesh(1.0, 9, 6), c[2], Transform3D(b, pos + rot * (c[0] as Vector3) * scale))
 	Geo.add_cylinder_collider(parent, 0.25 * scale, 2.4 * scale, pos + Vector3(0, 1.2 * scale, 0))
+
+
+## Arbusto bajo (sin colisión).
+static func bush(batch: Batcher, pos: Vector3, scale := 1.0, variant := 0) -> void:
+	var mats := [Mats.color("#2f6b2f", 0.95), Mats.color("#3f7f34", 0.95), Mats.color("#356b45", 0.95)]
+	var m: Material = mats[variant % mats.size()]
+	var rot := Basis(Vector3.UP, pos.z * 0.71 + pos.x * 0.29)
+	for o in [Vector3(0, 0.35, 0), Vector3(0.45, 0.3, 0.1), Vector3(-0.4, 0.28, -0.1), Vector3(0.05, 0.3, 0.42)]:
+		batch.add(Geo.sphere_mesh(0.45, 8, 5), m, Transform3D(rot.scaled(Vector3.ONE * scale), pos + rot * (o as Vector3) * scale))
+
+
+## Jardinera con flores de colores.
+static func flower_bed(batch: Batcher, parent: Node3D, center: Vector3, size: Vector2, rng: RandomNumberGenerator) -> void:
+	var border := Mats.color("#8d8578", 0.9)
+	var soil := Mats.color("#4a3626", 1.0)
+	Geo.box(parent, Vector3(size.x, 0.3, size.y), center + Vector3(0, 0.15, 0), border, true)
+	Geo.box(parent, Vector3(size.x - 0.3, 0.05, size.y - 0.3), center + Vector3(0, 0.31, 0), soil, false, false)
+	var petals := [Mats.color("#e63946", 0.8), Mats.color("#f4a261", 0.8), Mats.color("#ffd166", 0.8), Mats.color("#c77dff", 0.8), Mats.color("#ffffff", 0.8)]
+	var stem := Mats.color("#3f7f34", 0.9)
+	var count := int(size.x * size.y * 3.0)
+	for i in count:
+		var p := center + Vector3(rng.randf_range(-size.x / 2.0 + 0.3, size.x / 2.0 - 0.3), 0.33, rng.randf_range(-size.y / 2.0 + 0.3, size.y / 2.0 - 0.3))
+		batch.add(Geo.cylinder_mesh(0.015, 0.02, 0.3, 5), stem, Transform3D(Basis(), p + Vector3(0, 0.15, 0)), false)
+		batch.add(Geo.sphere_mesh(0.1, 8, 4), stem, Transform3D(Basis.from_scale(Vector3(1.4, 0.5, 1.4)), p + Vector3(0, 0.04, 0)), false)
+		batch.add(Geo.sphere_mesh(0.085, 7, 4), petals[rng.randi_range(0, petals.size() - 1)], Transform3D(Basis.from_scale(Vector3(1.2, 0.7, 1.2)), p + Vector3(0, 0.32, 0)), false)
 
 
 ## Farola orientada hacia `facing` (ángulo Y). Añade una luz nocturna.

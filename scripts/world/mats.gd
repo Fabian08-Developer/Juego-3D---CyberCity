@@ -159,40 +159,64 @@ static func road() -> StandardMaterial3D:
 	return m
 
 
-## Fachada con ventanas (4x4 por repetición) y emisión nocturna de ventanas encendidas.
+## Fachada con ventanas (4x4 por repetición, 3.2 m x 3.4 m por ventana) y emisión nocturna.
+## Incluye marcos, parteluces, alféizares, losas de piso y reflejo del cielo en el vidrio.
 static func facade(wall_hex: String, curtain := false, variant := 0) -> StandardMaterial3D:
 	var key := "facade|%s|%s|%d" % [wall_hex, curtain, variant]
 	if _cache.has(key):
 		return _cache[key]
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(key)
-	var cw := 64
-	var ch := 68
+	var cw := 128
+	var ch := 136
 	var wall := Color(wall_hex)
 	var img := _new_image(cw * 4, ch * 4, wall)
 	var emit := _new_image(cw * 4, ch * 4, Color.BLACK)
-	_noise(img, 0.02, rng)
+	_noise(img, 0.025, rng)
+	var glass_dark := Color("#1d3447")
+	var glass_sky := Color("#6f93b3")
 	for r in 4:
+		var y0 := r * ch
+		if not curtain:
+			# Losa de piso y junta de paneles
+			img.fill_rect(Rect2i(0, y0 + ch - 8, cw * 4, 8), wall.darkened(0.22))
+			img.fill_rect(Rect2i(0, y0 + ch - 9, cw * 4, 1), wall.lightened(0.15))
 		for c in 4:
 			var x := c * cw
-			var y := r * ch
 			var lit := rng.randf() < (0.2 if curtain else 0.3)
 			var warm := Color("#ffd98a") if rng.randf() < 0.7 else Color("#bfe6ff")
+			var blind := rng.randf() < 0.3
 			if curtain:
-				img.fill_rect(Rect2i(x + 2, y + 2, cw - 4, ch - 4), Color("#1f4f73").lerp(Color("#3b7fae"), rng.randf() * 0.5))
-				img.fill_rect(Rect2i(x + 2, y + 2, cw - 4, 8), Color(1, 1, 1, 0.15).blend(Color("#2d6a96")))
+				var gx := x + 3
+				var gy := y0 + 3
+				var gw := cw - 6
+				var gh := ch - 26
+				_gradient(img, Rect2i(gx, gy, gw, gh), glass_sky.lerp(Color("#9fc3df"), rng.randf() * 0.3), glass_dark)
+				img.fill_rect(Rect2i(x, y0 + ch - 23, cw, 23), Color("#22303c"))  # antepecho
+				img.fill_rect(Rect2i(x, y0, 3, ch), Color("#8c99a6"))  # montante
+				img.fill_rect(Rect2i(x, y0 + ch - 24, cw, 2), Color("#8c99a6"))
 				if lit:
-					emit.fill_rect(Rect2i(x + 10, y + 10, cw - 20, ch - 20), warm * 0.7)
+					emit.fill_rect(Rect2i(gx + 6, gy + 6, gw - 12, gh - 12), warm * 0.75)
 			else:
-				img.fill_rect(Rect2i(x + 9, y + 10, cw - 18, ch - 22), wall.darkened(0.35))
-				img.fill_rect(Rect2i(x + 11, y + 12, cw - 22, ch - 26), Color("#2c3e50").lerp(Color("#4a6b85"), rng.randf() * 0.4))
-				img.fill_rect(Rect2i(x + 8, y + ch - 12, cw - 16, 4), wall.lightened(0.25))
+				var wx := x + 22
+				var wy := y0 + 20
+				var ww := cw - 44
+				var wh := ch - 52
+				img.fill_rect(Rect2i(wx - 5, wy - 5, ww + 10, wh + 10), wall.darkened(0.45))  # vano
+				img.fill_rect(Rect2i(wx - 3, wy - 3, ww + 6, wh + 6), Color("#e8e6e1"))  # marco
+				_gradient(img, Rect2i(wx, wy, ww, wh), glass_sky, glass_dark)
+				if blind:
+					img.fill_rect(Rect2i(wx, wy, ww, int(wh * 0.35)), Color("#d9cdb4"))
+				img.fill_rect(Rect2i(wx + ww / 2 - 2, wy, 4, wh), Color("#e8e6e1"))  # parteluz
+				img.fill_rect(Rect2i(wx, wy + int(wh * 0.38), ww, 3), Color("#e8e6e1"))
+				img.fill_rect(Rect2i(wx - 8, wy + wh + 3, ww + 16, 6), wall.lightened(0.3))  # alféizar
+				img.fill_rect(Rect2i(wx - 8, wy + wh + 9, ww + 16, 3), wall.darkened(0.3))
 				if lit:
-					emit.fill_rect(Rect2i(x + 11, y + 12, cw - 22, ch - 26), warm)
+					emit.fill_rect(Rect2i(wx, wy, ww, wh), warm)
 	var m := StandardMaterial3D.new()
 	m.albedo_texture = _texture(img)
-	m.roughness = 0.35 if curtain else 0.85
-	m.metallic = 0.4 if curtain else 0.0
+	m.roughness = 0.3 if curtain else 0.85
+	m.metallic = 0.35 if curtain else 0.0
 	m.uv1_triplanar = true
 	m.uv1_world_triplanar = true
 	m.uv1_scale = Vector3(1.0 / 12.8, 1.0 / 13.6, 1.0 / 12.8)
@@ -207,3 +231,10 @@ static func facade(wall_hex: String, curtain := false, variant := 0) -> Standard
 	night_materials.append(m)
 	_cache[key] = m
 	return m
+
+
+## Degradado vertical dentro de un rectángulo (reflejo del cielo en el vidrio).
+static func _gradient(img: Image, rect: Rect2i, top: Color, bottom: Color) -> void:
+	for i in rect.size.y:
+		var t := float(i) / maxf(1.0, rect.size.y - 1.0)
+		img.fill_rect(Rect2i(rect.position.x, rect.position.y + i, rect.size.x, 1), top.lerp(bottom, t))

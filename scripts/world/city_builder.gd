@@ -150,6 +150,9 @@ static func _block_props(batch: Batcher, root: Node3D, city: CityData, cx: float
 	for dz in [-7.0, 7.0]:
 		Props.tree(batch, root, Vector3(cx - e, y, cz + dz), 0.85, rng.randi_range(0, 2))
 		Props.tree(batch, root, Vector3(cx + e, y, cz + dz), 0.85, rng.randi_range(0, 2))
+	for dz in [-3.0, 3.0]:
+		Props.bush(batch, Vector3(cx - e, y, cz + dz), 0.7, rng.randi_range(0, 2))
+		Props.bush(batch, Vector3(cx + e, y, cz + dz), 0.7, rng.randi_range(0, 2))
 	Props.trash_bin(batch, root, Vector3(cx - 4.5, y, cz - e))
 	Props.trash_bin(batch, root, Vector3(cx + 4.5, y, cz + e))
 	Props.hydrant(batch, root, Vector3(cx + e, y, cz - 3.5))
@@ -189,6 +192,19 @@ static func _park(root: Node3D, batch: Batcher, city: CityData, cx: float, cz: f
 				Props.tree(batch, root, Vector3(x, y, z), rng.randf_range(0.9, 1.3), rng.randi_range(0, 2))
 	for p in [Vector3(cx + 2.6, y, cz - 12), Vector3(cx - 2.6, y, cz + 12), Vector3(cx - 12, y, cz + 2.6), Vector3(cx + 12, y, cz - 2.6)]:
 		Props.street_light(batch, root, city, p, 0.0, lamp_mat)
+	# Jardineras con flores junto a los caminos y arbustos en el borde del parque
+	var frng := RandomNumberGenerator.new()
+	frng.seed = 21
+	for q in [Vector2(1, 1), Vector2(-1, 1), Vector2(1, -1), Vector2(-1, -1)]:
+		Props.flower_bed(batch, root, Vector3(cx + q.x * 4.6, y, cz + q.y * 12.5), Vector2(2.4, 5.0), frng)
+		Props.flower_bed(batch, root, Vector3(cx + q.x * 12.5, y, cz + q.y * 4.6), Vector2(5.0, 2.4), frng)
+	for k in 24:
+		var t := float(k) / 24.0 * TAU
+		var r := size / 2.0 - 0.6
+		var bp := Vector3(cx + clampf(cos(t) * r * 1.5, -r, r), y, cz + clampf(sin(t) * r * 1.5, -r, r))
+		if absf(bp.x - cx) < 2.8 or absf(bp.z - cz) < 2.8:
+			continue
+		Props.bush(batch, bp, frng.randf_range(0.8, 1.2), k)
 	Props.bus_stop(batch, root, Vector3(cx + 8, y, cz + 18.4), 0.0)
 	city.add_spot("bus_stop", Vector3(cx + 8, y, cz + 19.4))
 	city.add_shape(cx - size / 2.0, cz - size / 2.0, cx + size / 2.0, cz + size / 2.0, Color("#3f7f34"), "Parque")

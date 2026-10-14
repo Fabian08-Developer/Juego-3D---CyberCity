@@ -97,3 +97,47 @@ static func label(parent: Node, text: String, pos: Vector3, font_size := 64, col
 		l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	parent.add_child(l)
 	return l
+
+
+static func _tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, n: Vector3) -> void:
+	# Godot considera frontal el sentido horario: se ordena el triángulo según la normal deseada.
+	if (b - a).cross(c - a).dot(n) > 0.0:
+		var tmp := b
+		b = c
+		c = tmp
+	st.set_normal(n)
+	st.add_vertex(a)
+	st.set_normal(n)
+	st.add_vertex(b)
+	st.set_normal(n)
+	st.add_vertex(c)
+
+
+## Extruye un perfil lateral (puntos en el plano Z-Y) a lo ancho del eje X. Ideal para carrocerías.
+static func extrude(profile: PackedVector2Array, width: float) -> ArrayMesh:
+	var poly := profile.duplicate()
+	if Geometry2D.is_polygon_clockwise(poly):
+		poly.reverse()
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var hw := width / 2.0
+	var tris := Geometry2D.triangulate_polygon(poly)
+	for side in [-1.0, 1.0]:
+		var n := Vector3(side, 0, 0)
+		for i in range(0, tris.size(), 3):
+			var p0 := poly[tris[i]]
+			var p1 := poly[tris[i + 1]]
+			var p2 := poly[tris[i + 2]]
+			_tri(st, Vector3(side * hw, p0.y, p0.x), Vector3(side * hw, p1.y, p1.x), Vector3(side * hw, p2.y, p2.x), n)
+	for i in poly.size():
+		var a := poly[i]
+		var b := poly[(i + 1) % poly.size()]
+		var e := b - a
+		var n := Vector3(0, -e.x, e.y).normalized()
+		var al := Vector3(-hw, a.y, a.x)
+		var ar := Vector3(hw, a.y, a.x)
+		var bl := Vector3(-hw, b.y, b.x)
+		var br := Vector3(hw, b.y, b.x)
+		_tri(st, al, bl, br, n)
+		_tri(st, al, br, ar, n)
+	return st.commit()

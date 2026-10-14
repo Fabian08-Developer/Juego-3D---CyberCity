@@ -100,6 +100,7 @@ GameState (autoload: día, hora, dinero, reputación, energía, XP, guardado)
 ## 5. Pruebas
 
 - `gdlint scripts`: estilo y errores de sintaxis (gdtoolkit).
+- `--showcase`: vitrina con todos los vehículos y estilos de personaje, el cielo y el atardecer, para revisar el diseño.
 - Prueba de humo automática: `godot --headless --path . -- --smoke-test` recorre inicio de partida, generación de
   las 7 categorías, consola SOC, tienda, evento de ciudad, caminar, dormir y menú de pausa; termina con código 0 si todo
   sale bien. Con ventana añade `--shots=<carpeta>` para guardar capturas.
@@ -107,6 +108,13 @@ GameState (autoload: día, hora, dinero, reputación, energía, XP, guardado)
 ## 6. Hoja de ruta
 
 ### Fase 1 — Fundamentos (prototipo web) ✅
+### Fase 2b — Rediseño visual v0.3 ✅
+- [x] Vehículos con perfil lateral extruido (sedán, taxi, SUV, pick-up, bus), llantas con rin, luces y placas
+- [x] Personajes redondeados con peinados y estilos de ropa
+- [x] Edificios con zócalo, cornisas, pretil, balcones, torres escalonadas y fachadas detalladas
+- [x] Cielo con shader propio (nubes, halo solar, estrellas), árboles frondosos, arbustos y jardineras
+- [x] Corrección: los vehículos quedaban apilados en el centro del mapa (AnimatableBody3D con `sync_to_physics`)
+
 ### Fase 2 — Proyecto Godot v0.2 ✅
 - [x] Ciudad, negocios con interior, sede con SOC, tráfico con semáforos, peatones, día/noche
 - [x] 7 categorías de incidentes en JSON, 10 eventos de ciudad, carrera profesional
